@@ -32,7 +32,7 @@ body {
 }
 
 .time-display {
-    font-size: clamp(5rem, 25vw, 15rem);
+    font-size: clamp(6rem, 30vw, 15rem);
     font-weight: normal;
     letter-spacing: 0.05em;
     margin-bottom: 1rem;
@@ -87,20 +87,26 @@ body {
 
 @media (max-width: 768px) {
     .time-display {
-        font-size: clamp(3rem, 15vw, 8rem);
+        font-size: clamp(4rem, 35vw, 10rem);
+        letter-spacing: 0.03em;
     }
     
     .date-display {
-        font-size: clamp(1.2rem, 5vw, 2rem);
+        font-size: clamp(1.2rem, 8vw, 2rem);
     }
 }
 
 @media (max-width: 480px) {
     .time-display {
-        font-size: clamp(2.5rem, 12vw, 6rem);
+        font-size: clamp(3.5rem, 40vw, 8rem);
+        letter-spacing: 0.02em;
     }
     
     .date-display {
-        font-size: clamp(1rem, 4vw, 1.5rem);
+        font-size: clamp(1rem, 6vw, 1.5rem);
+    }
+    
+    .toggle-container {
+        bottom: 1.5rem;
     }
 }
