@@ -1,5 +1,11 @@
-/* Updated Google Fonts import for better GitHub Pages compatibility */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+/* Local font face declaration for Digital-7 font */
+@font-face {
+    font-family: 'Digital7';
+    src: url('fonts/digital-7.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
 
 * {
     margin: 0;
@@ -10,7 +16,7 @@
 body {
     background-color: #000000;
     color: #ffffff;
-    font-family: 'Orbitron', 'Courier New', monospace;
+    font-family: 'Digital7', 'Consolas', monospace;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -53,7 +59,7 @@ body {
     background: none;
     border: none;
     color: #666666;
-    font-family: 'Orbitron', 'Courier New', monospace;
+    font-family: 'Digital7', 'Consolas', monospace;
     font-size: clamp(0.8rem, 3vw, 1.2rem);
     font-weight: 400;
     letter-spacing: 0.1em;
