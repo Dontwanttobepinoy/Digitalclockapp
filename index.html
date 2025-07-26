@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Clock</title>
-    <link rel="icon" type="image/png" href="logo.png"> 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
@@ -18,6 +17,23 @@
     
     <div class="toggle-container">
         <button id="formatToggle" class="toggle-switch">12H</button>
+        <span style="color: #666666;">|</span>
+        <button id="timezoneToggle" class="timezone-button">LOCAL</button>
+    </div>
+    
+    <!-- Timezone Selection Modal -->
+    <div id="timezoneModal" class="timezone-modal">
+        <div class="timezone-search-container">
+            <button class="close-modal" onclick="closeTimezoneModal()">&times;</button>
+            <input 
+                type="text" 
+                id="timezoneSearch" 
+                class="timezone-search-input" 
+                placeholder="Search for a city..."
+                autocomplete="off"
+            >
+            <div id="timezoneResults" class="timezone-results"></div>
+        </div>
     </div>
 
     <script src="script.js"></script>
