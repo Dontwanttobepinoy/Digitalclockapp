@@ -1,4 +1,4 @@
-/* Local font face declaration for Digital-7 font */
+/* Digital-7 Font Declaration */
 @font-face {
     font-family: 'Digital7';
     src: url('fonts/digital-7.ttf') format('truetype');
@@ -7,6 +7,7 @@
     font-display: swap;
 }
 
+/* Reset & Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -25,6 +26,7 @@ body {
     overflow: hidden;
 }
 
+/* Clock Layout */
 .clock-container {
     text-align: center;
     width: 100%;
@@ -48,6 +50,7 @@ body {
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
+/* Toggle Switch */
 .toggle-container {
     position: fixed;
     bottom: 2rem;
@@ -72,6 +75,7 @@ body {
     color: #999999;
 }
 
+/* Blinking Colon Animation */
 .colon {
     animation: blink 1s infinite;
 }
@@ -85,6 +89,7 @@ body {
     }
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
     .time-display {
         font-size: clamp(4rem, 35vw, 10rem);
