@@ -33,19 +33,19 @@ body {
 
 .time-display {
     font-size: clamp(4rem, 20vw, 12rem);
-    font-weight: 900;
-    letter-spacing: 0.1em;
+    font-weight: normal;
+    letter-spacing: 0.05em;
     margin-bottom: 1rem;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
     line-height: 1;
 }
 
 .date-display {
     font-size: clamp(1.5rem, 6vw, 3rem);
-    font-weight: 400;
-    letter-spacing: 0.15em;
+    font-weight: normal;
+    letter-spacing: 0.08em;
     opacity: 0.9;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 .toggle-container {
@@ -61,8 +61,8 @@ body {
     color: #666666;
     font-family: 'Digital7', 'Consolas', monospace;
     font-size: clamp(0.8rem, 3vw, 1.2rem);
-    font-weight: 400;
-    letter-spacing: 0.1em;
+    font-weight: normal;
+    letter-spacing: 0.05em;
     cursor: pointer;
     padding: 0.5rem 1rem;
     transition: color 0.3s ease;
