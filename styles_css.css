@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: 'Orbitron', monospace;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.clock-container {
+    text-align: center;
+    width: 100%;
+    max-width: 90vw;
+}
+
+.time-display {
+    font-size: clamp(4rem, 20vw, 12rem);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    line-height: 1;
+}
+
+.date-display {
+    font-size: clamp(1.5rem, 6vw, 3rem);
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    opacity: 0.9;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.toggle-container {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.toggle-switch {
+    background: none;
+    border: none;
+    color: #666666;
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(0.8rem, 3vw, 1.2rem);
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    transition: color 0.3s ease;
+}
+
+.toggle-switch:hover {
+    color: #999999;
+}
+
+.colon {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% {
+        opacity: 1;
+    }
+    51%, 100% {
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .time-display {
+        font-size: clamp(3rem, 15vw, 8rem);
+    }
+    
+    .date-display {
+        font-size: clamp(1.2rem, 5vw, 2rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .time-display {
+        font-size: clamp(2.5rem, 12vw, 6rem);
+    }
+    
+    .date-display {
+        font-size: clamp(1rem, 4vw, 1.5rem);
+    }
+}
