@@ -34,12 +34,10 @@ body {
 .time-display {
     font-size: clamp(5rem, 25vw, 15rem);
     font-weight: normal;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.05em;
     margin-bottom: 1rem;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
     line-height: 1;
-    width: 100%;
-    max-width: 66.67vw;
 }
 
 .date-display {
