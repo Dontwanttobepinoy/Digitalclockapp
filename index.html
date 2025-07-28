@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Digital Clock App</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="logo.png">
+</head>
+<body>
+  <main id="app">
+    <!-- CLOCK MODE -->
+    <div id="clock-container" class="mode active">
+      <div class="digital-group clock-group">
+        <div id="clock-time" class="digital"></div>
+        <div id="clock-date" class="digital date"></div>
+      </div>
+    </div>
+
+    <!-- TIMER MODE -->
+    <div id="timer-container" class="mode">
+      <div class="digital-group clock-group">
+        <div id="timer-display" class="digital"></div>
+        <div id="timer-ms" class="digital date"></div>
+      </div>
+      <div id="timer-controls">
+        <div class="timer-setter-col">
+          <button class="inc-btn big-btn" data-type="hours">+</button>
+          <input type="number" min="0" max="23" id="timer-hours" placeholder="HH" autocomplete="off" inputmode="numeric">
+          <button class="dec-btn big-btn" data-type="hours">−</button>
+        </div>
+        <div class="timer-setter-col">
+          <button class="inc-btn big-btn" data-type="minutes">+</button>
+          <input type="number" min="0" max="59" id="timer-minutes" placeholder="MM" autocomplete="off" inputmode="numeric">
+          <button class="dec-btn big-btn" data-type="minutes">−</button>
+        </div>
+        <div class="timer-setter-col">
+          <button class="inc-btn big-btn" data-type="seconds">+</button>
+          <input type="number" min="0" max="59" id="timer-seconds" placeholder="SS" autocomplete="off" inputmode="numeric">
+          <button class="dec-btn big-btn" data-type="seconds">−</button>
+        </div>
+        <div class="timer-btns">
+          <button class="text-btn" id="timer-start">Start</button>
+          <button class="text-btn" id="timer-stop">Stop</button>
+          <button class="text-btn" id="timer-reset">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STOPWATCH MODE -->
+    <div id="stopwatch-container" class="mode">
+      <div class="digital-group clock-group">
+        <div id="stopwatch-display" class="digital"></div>
+        <div id="stopwatch-ms" class="digital date"></div>
+      </div>
+      <div id="stopwatch-controls">
+        <button class="text-btn" id="sw-start">Start</button>
+        <button class="text-btn" id="sw-lap">Lap</button>
+        <button class="text-btn" id="sw-stop">Stop</button>
+        <button class="text-btn" id="sw-reset">Reset</button>
+      </div>
+      <div id="stopwatch-laps" class="lap-list"></div>
+    </div>
+  </main>
+
+  <!-- MENU BAR -->
+  <nav id="menu-bar" aria-label="Menu">
+    <button class="menu-btn" id="btn-clock" tabindex="0">CLOCK</button>
+    <button class="menu-btn" id="btn-timer" tabindex="0">TIMER</button>
+    <button class="menu-btn" id="btn-stopwatch" tabindex="0">STOPWATCH</button>
+    <span class="divider">|</span>
+    <button class="menu-btn menu-btn-toggle" id="btn-24h" tabindex="0">24H</button>
+    <button class="menu-btn menu-btn-toggle" id="btn-mute" tabindex="0">MUTE</button>
+    <button class="menu-btn" id="btn-fullscreen" tabindex="0">FULLSCREEN</button>
+    <button class="menu-btn menu-btn-hide" id="btn-hide" tabindex="0">HIDE</button>
+  </nav>
+  <button id="unhide-btn" class="menu-btn menu-btn-hide" style="display: none;" tabindex="0">MENU</button>
+
+  <audio id="alarm-sound" src="alarm.wav" preload="auto"></audio>
+  <audio id="timer-sound" src="timer.wav" preload="auto"></audio>
+  <audio id="click-sound" src="click.wav" preload="auto"></audio>
+  <script src="app.js"></script>
+</body>
+</html>
