@@ -1,0 +1,346 @@
+@font-face {
+  font-family: 'Digital7';
+  src: url('digital-7.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --primary: #000000;
+  --accent: #2bb673;
+  --btn-hover: #fff;
+  --btn-inactive: #a0a0a0;
+  --btn-toggle-on: #fff;
+  --btn-toggle-off: #a0a0a0;
+  --highlight: #fff;
+  --fade: 0.75;
+  --menu-height: 64px;
+}
+
+html, body {
+  background: var(--primary);
+  color: #fff;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Digital7', 'Consolas', monospace;
+}
+
+body, #app {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.digital-group,
+.clock-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.digital {
+  font-family: 'Digital7', monospace;
+  font-size: 15.6vw;
+  min-height: 1em;
+  letter-spacing: 0.08em;
+  text-align: center;
+  user-select: none;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.digital.date {
+  font-size: 3vw;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  min-height: unset;
+  letter-spacing: 0.12em;
+}
+
+#stopwatch-ms, #timer-ms {
+  margin-top: 0.22em;
+  font-size: 3vw;
+  letter-spacing: 0.12em;
+  color: #aaa;
+  text-align: center;
+}
+
+#clock-container, #timer-container, #stopwatch-container {
+  display: none;
+  min-height: 66vh;
+  width: 100vw;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#clock-container.active,
+#timer-container.active,
+#stopwatch-container.active {
+  display: flex;
+}
+
+/* Ensure .digital-group (the clock) is in the same vertical position for all modes */
+.clock-group {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  height: auto;
+}
+
+/* TIMER CONTROLS */
+#timer-controls {
+  margin-top: 1.5em;
+  display: flex;
+  flex-direction: row;
+  gap: 2.5vw;
+  align-items: flex-end;
+  justify-content: center;
+}
+.timer-setter-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.15em;
+}
+.timer-setter-col input {
+  width: 3.6em;
+  text-align: center;
+  font-size: 1.25em;
+  font-family: inherit;
+  background: #000000;
+  color: #fff;
+  border: none;
+  border-radius: 0.35em;
+  margin: 0.18em 0;
+  padding: 0.17em 0.1em;
+  outline: none;
+}
+.timer-setter-col input::-webkit-outer-spin-button,
+.timer-setter-col input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.timer-setter-col input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Make + and − buttons the largest, truly thumb-sized for mobile */
+.big-btn {
+  font-size: 5.5em !important;
+  min-width: 2.9em;
+  min-height: 2.6em;
+  padding: 0.12em 0.48em !important;
+  line-height: 1.25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.inc-btn, .dec-btn {
+  color: #fff;
+  cursor: pointer;
+  border-radius: 2em;
+  outline: none;
+  appearance: none;
+  border: none;
+  background: none;
+  transition: color 0.15s;
+}
+.inc-btn:focus, .dec-btn:focus { outline: none; }
+.inc-btn:hover, .dec-btn:hover { color: var(--accent); }
+
+.timer-btns {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  margin-left: 2vw;
+  gap: 0.35em;
+}
+
+.text-btn,
+.inc-btn, .dec-btn {
+  background: none !important;
+  color: var(--btn-inactive) !important;
+  font-family: inherit !important;
+  font-size: 1.08em !important;
+  padding: 0.48em 0.9em !important;
+  border: none !important;
+  cursor: pointer;
+  border-radius: 2em !important;
+  letter-spacing: 0.04em;
+  min-width: 3.4em;
+  text-align: center;
+  box-shadow: none;
+  appearance: none;
+  transition: color 0.18s, text-shadow 0.2s;
+}
+.text-btn:focus, .text-btn:hover {
+  color: var(--btn-hover) !important;
+  text-shadow: 0 0 8px var(--accent), 0 0 4px #fff;
+}
+
+/* MENU BAR + BUTTONS */
+nav#menu-bar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  min-height: var(--menu-height);
+  background: rgba(0, 0, 0, 0.97);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2em;
+  z-index: 20;
+  transition: transform 0.3s cubic-bezier(.77,0,.18,1), opacity 0.2s;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.14);
+}
+
+.menu-btn {
+  background: none;
+  color: var(--btn-inactive);
+  font-family: inherit;
+  font-size: 1.08em;
+  padding: 0.48em 0.9em;
+  margin: 0;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: color 0.18s, text-shadow 0.2s;
+  border-radius: 2em;
+  letter-spacing: 0.04em;
+  min-width: 3.4em;
+  text-align: center;
+  box-shadow: none;
+  appearance: none;
+}
+.menu-btn:focus,
+.menu-btn:hover {
+  color: var(--btn-hover);
+  text-shadow: 0 0 8px var(--accent), 0 0 4px #fff;
+}
+.menu-btn.active {
+  color: var(--highlight) !important;
+  text-shadow: 0 0 10px #fff;
+}
+.menu-btn-toggle[aria-pressed="true"], .menu-btn-toggle.active {
+  color: var(--btn-toggle-on) !important;
+  text-shadow: none;
+  background: none;
+}
+.menu-btn-toggle[aria-pressed="false"] {
+  color: var(--btn-inactive) !important;
+  text-shadow: none !important;
+}
+.menu-btn-hide {
+  font-size: 1.08em !important;
+  padding: 0.48em 0.9em !important;
+  min-width: 3.4em;
+  background: none;
+  border-radius: 2em;
+  font-family: inherit;
+  box-shadow: none;
+  appearance: none;
+}
+.divider {
+  color: #444;
+  font-size: 1.2em;
+  padding: 0 0.7em;
+  user-select: none;
+}
+
+#unhide-btn.menu-btn-hide {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--menu-height) / 2 - 0.6em);
+  transform: translateX(-50%);
+  opacity: 1;
+  z-index: 9999;
+  background: rgba(34,34,34,0.16);
+  box-shadow: 0 3px 15px rgba(0,0,0,0.13);
+  pointer-events: auto;
+  transition: opacity 1.2s, background 0.18s;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#unhide-btn.faded {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.colon-off {
+  opacity: 0.13;
+  transition: opacity 0.11s;
+}
+
+@media (max-width: 800px) {
+  .digital { font-size: 24vw; }
+  .digital.date { font-size: 7vw; }
+  #stopwatch-ms, #timer-ms { font-size: 7vw; }
+  nav#menu-bar {
+    flex-wrap: wrap;
+    min-height: 56px;
+    font-size: 1.07em;
+  }
+  #unhide-btn.menu-btn-hide {
+    bottom: 1.6em;
+  }
+}
+@media (max-width: 520px) {
+  nav#menu-bar {
+    flex-direction: column;
+    gap: 0.2em;
+    min-height: unset;
+    padding: 0.2em 0;
+  }
+  .divider { display: none; }
+  #unhide-btn.menu-btn-hide {
+    bottom: 1em;
+  }
+}
+
+/* LAP LIST: 4 lines only, scrollable, always fixed height */
+.lap-list {
+  margin-top: 1em;
+  max-height: 5.1em;
+  min-height: 5.1em;
+  overflow-y: auto;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.2em;
+  font-family: 'Digital7', monospace;
+  color: #aaa;
+  scrollbar-width: thin;
+  scrollbar-color: #444 #191919;
+}
+.lap-list div {
+  width: 100%;
+  text-align: center;
+  padding: 0.12em 0;
+  user-select: text;
+  box-sizing: border-box;
+}
+.lap-list div.latest {
+  color: #fff;
+}
