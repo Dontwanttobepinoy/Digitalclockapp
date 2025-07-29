@@ -12,6 +12,7 @@ function getSetting(key, def) {
   const v = localStorage.getItem(storageKeys[key]);
   return v !== null ? JSON.parse(v) : def;
 }
+
 // ---- App State ---- //
 let state = {
   mode: getSetting('lastMode', 'clock'),
@@ -48,6 +49,7 @@ function startColonBlink() {
   }, 500);
 }
 startColonBlink();
+
 // ---- DOM Refs ---- //
 const modes = ['clock','timer','stopwatch'];
 const containers = {
@@ -58,17 +60,28 @@ const containers = {
 const menuBar = document.getElementById('menu-bar');
 const unhideBtn = document.getElementById('unhide-btn');
 const btns = {
-  clock: document.getElementById('btn-clock'),
-  timer: document.getElementById('btn-timer'),
-  stopwatch: document.getElementById('btn-stopwatch'),
-  _24h: document.getElementById('btn-24h'),
-  mute: document.getElementById('btn-mute'),
-  hide: document.getElementById('btn-hide'),
-  fullscreen: document.getElementById('btn-fullscreen')
+  clock: document.getElementById('clock-btn'),
+  timer: document.getElementById('timer-btn'),
+  stopwatch: document.getElementById('stopwatch-btn'),
+  _24h: document.getElementById('toggle-24h'),
+  mute: document.getElementById('toggle-mute'),
+  fullscreen: document.getElementById('toggle-fullscreen'),
+  hide: document.getElementById('hide-menu-btn')
 };
-const alarmAudio = document.getElementById('alarm-sound');
-const timerAudio = document.getElementById('timer-sound');
-const clickAudio = document.getElementById('click-sound');
+
+// ---- Audio ---- //
+const clickAudio = (() => {
+  let audio = document.createElement('audio');
+  audio.src = 'click.wav';
+  audio.preload = 'auto';
+  return audio;
+})();
+const alarmAudio = (() => {
+  let audio = document.createElement('audio');
+  audio.src = 'alarm.wav';
+  audio.preload = 'auto';
+  return audio;
+})();
 
 // ---- Util ---- //
 function getBlinkingColon(blink) {
@@ -78,6 +91,7 @@ function getBlinkingColon(blink) {
     return ':';
   }
 }
+
 // ---- CLOCK ---- //
 function renderClock() {
   const now = new Date();
@@ -85,24 +99,23 @@ function renderClock() {
   let m = now.getMinutes();
   let ap = '';
   if (!state.format24h) {
-    ap = h >= 12 ? ' AM' : ' AM';
-    if (h >= 12) ap = ' PM';
+    ap = h >= 12 ? ' PM' : ' AM';
     h = h % 12; if (h === 0) h = 12;
   }
   let sep = getBlinkingColon(true);
-  document.getElementById('clock-time').innerHTML =
+  document.getElementById('clock').innerHTML =
     h.toString().padStart(2, '0') + sep + m.toString().padStart(2, '0') + ap;
-  document.getElementById('clock-date').textContent =
+  document.getElementById('date').textContent =
     now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).replace(/ /g, '/').replace(/,/, '').toUpperCase();
 }
 
 // ---- TIMER ---- //
 let timerInput = {
-  hours: document.getElementById('timer-hours'),
-  minutes: document.getElementById('timer-minutes'),
-  seconds: document.getElementById('timer-seconds')
+  hours: document.getElementById('timer-hh'),
+  minutes: document.getElementById('timer-mm'),
+  seconds: document.getElementById('timer-ss')
 };
-let timerDisplay = document.getElementById('timer-display');
+let timerDisplay = document.getElementById('timer');
 let timerMSDisplay = document.getElementById('timer-ms');
 function renderTimer() {
   let t = state.timer.time;
@@ -118,7 +131,7 @@ function renderTimer() {
     : '000 ms';
 }
 function stopAllSounds() {
-  [alarmAudio, timerAudio, clickAudio].forEach(aud => {
+  [alarmAudio, clickAudio].forEach(aud => {
     if (aud) {
       aud.pause();
       aud.currentTime = 0;
@@ -154,7 +167,6 @@ function timerTick() {
 
   if (remaining <= 0) {
     if (!state.mute) {
-      playSound(timerAudio);
       playSound(alarmAudio);
       state.timer.alarmActive = true;
     }
@@ -171,8 +183,6 @@ function timerStop() {
     alarmAudio.currentTime = 0;
     state.timer.alarmActive = false;
   }
-  timerAudio.pause();
-  timerAudio.currentTime = 0;
   state.timer.endTime = null;
   renderTimer();
 }
@@ -197,15 +207,28 @@ function timerClear() {
   renderTimer();
 }
 
-document.getElementById('timer-start').onclick = timerStart;
-document.getElementById('timer-stop').onclick = timerStop;
-document.getElementById('timer-reset').onclick = timerResetToInput;
-document.getElementById('timer-clear').onclick = timerClear;
+document.getElementById('timer-start').onclick = () => {
+  playSound(clickAudio);
+  timerStart();
+};
+document.getElementById('timer-stop').onclick = () => {
+  playSound(clickAudio);
+  timerStop();
+};
+document.getElementById('timer-reset').onclick = () => {
+  playSound(clickAudio);
+  timerResetToInput();
+};
+document.getElementById('timer-clear').onclick = () => {
+  playSound(clickAudio);
+  timerClear();
+};
 
 document.querySelectorAll('.inc-btn').forEach(btn => {
   btn.onclick = () => {
-    let type = btn.getAttribute('data-type');
-    let input = document.getElementById('timer-' + type);
+    playSound(clickAudio);
+    let type = btn.id.split('-')[2]; // "hh", "mm", "ss"
+    let input = timerInput[type === "hh" ? "hours" : type === "mm" ? "minutes" : "seconds"];
     let max = parseInt(input.max, 10);
     let val = parseInt(input.value || '0', 10);
     if (val < max) input.value = val + 1;
@@ -215,8 +238,9 @@ document.querySelectorAll('.inc-btn').forEach(btn => {
 });
 document.querySelectorAll('.dec-btn').forEach(btn => {
   btn.onclick = () => {
-    let type = btn.getAttribute('data-type');
-    let input = document.getElementById('timer-' + type);
+    playSound(clickAudio);
+    let type = btn.id.split('-')[2];
+    let input = timerInput[type === "hh" ? "hours" : type === "mm" ? "minutes" : "seconds"];
     let min = parseInt(input.min, 10);
     let val = parseInt(input.value || '0', 10);
     if (val > min) input.value = val - 1;
@@ -239,7 +263,7 @@ function timerUpdateStateFromInputs() {
 }
 
 // ---- STOPWATCH (wall clock accurate, with pause/resume bug FIXED) ---- //
-let swDisplay = document.getElementById('stopwatch-display');
+let swDisplay = document.getElementById('stopwatch');
 let swMsDisplay = document.getElementById('stopwatch-ms');
 function renderStopwatch() {
   let t = state.stopwatch.time;
@@ -306,12 +330,25 @@ function clearStopwatch() {
   renderStopwatch();
 }
 
-document.getElementById('sw-start').onclick = startStopwatch;
-document.getElementById('sw-stop').onclick = stopStopwatch;
-document.getElementById('sw-reset').onclick = clearStopwatch;
+document.getElementById('stopwatch-start').onclick = () => {
+  playSound(clickAudio);
+  startStopwatch();
+};
+document.getElementById('stopwatch-stop').onclick = () => {
+  playSound(clickAudio);
+  stopStopwatch();
+};
+document.getElementById('stopwatch-reset').onclick = () => {
+  playSound(clickAudio);
+  clearStopwatch();
+};
+document.getElementById('stopwatch-lap').onclick = () => {
+  playSound(clickAudio);
+  addLap();
+};
 
-// ---- LAP Feature (shows only 4 lines, scrolls for overflow, always fixed height) ---- //
-let swLapList = document.getElementById('stopwatch-laps');
+// ---- LAP Feature (shows only 3 lines, scrolls for overflow, always fixed height) ---- //
+let swLapList = document.getElementById('lap-list');
 let swLaps = [];
 function updateLapList() {
   swLapList.innerHTML = '';
@@ -341,31 +378,6 @@ function addLap() {
   if (swLaps.length > 100) swLaps.length = 100;
   updateLapList();
 }
-document.getElementById('sw-lap').onclick = addLap;
-
-// FULLSCREEN toggle
-btns.fullscreen.onclick = () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(console.error);
-  } else {
-    document.exitFullscreen().catch(console.error);
-  }
-};
-
-// ---- PLAY click.wav on every button press (unless muted) ---- //
-document.addEventListener('DOMContentLoaded', function () {
-  document.body.addEventListener('click', function (e) {
-    const isButton = e.target.tagName === "BUTTON";
-    if (!isButton) return;
-    if (state.mute) return;
-    if (clickAudio) {
-      try {
-        clickAudio.currentTime = 0;
-        clickAudio.play();
-      } catch {}
-    }
-  }, true);
-});
 
 // ---- Menu & Settings ---- //
 function updateModeUI() {
@@ -382,11 +394,9 @@ function updateMenuVisibility() {
 }
 function update24hBtn() {
   btns._24h.setAttribute('aria-pressed', state.format24h ? "true" : "false");
-  btns._24h.classList.toggle('active', false);
 }
 function updateMuteBtn() {
   btns.mute.setAttribute('aria-pressed', state.mute ? "true" : "false");
-  btns.mute.classList.toggle('active', state.mute);
 }
 function setMode(mode) {
   if (!modes.includes(mode)) return;
@@ -409,24 +419,44 @@ function setMute(flag) {
   stopAllSounds();
   saveSetting('mute', flag);
 }
-btns.clock.onclick = ()=>setMode('clock');
-btns.timer.onclick = ()=>setMode('timer');
-btns.stopwatch.onclick = ()=>setMode('stopwatch');
+
+btns.clock.onclick = () => { playSound(clickAudio); setMode('clock'); };
+btns.timer.onclick = () => { playSound(clickAudio); setMode('timer'); };
+btns.stopwatch.onclick = () => { playSound(clickAudio); setMode('stopwatch'); };
+
 btns._24h.onclick = ()=>{
+  playSound(clickAudio);
   set24h(!state.format24h);
   update24hBtn();
+  btns._24h.blur();
 };
 btns.mute.onclick = ()=>{
+  playSound(clickAudio);
   setMute(!state.mute);
   updateMuteBtn();
+  btns.mute.blur();
 };
-btns.hide.onclick = ()=>{ state.menuHidden = true; updateMenuVisibility();
-  unhideFadeLogic(); };
+btns.fullscreen.onclick = ()=>{
+  playSound(clickAudio);
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(()=>{});
+  } else {
+    document.exitFullscreen().catch(()=>{});
+  }
+  btns.fullscreen.blur();
+};
+btns.hide.onclick = ()=>{
+  playSound(clickAudio);
+  state.menuHidden = true; updateMenuVisibility();
+  unhideFadeLogic();
+};
 unhideBtn.onclick = ()=>{
+  playSound(clickAudio);
   state.menuHidden = false;
   updateMenuVisibility();
   unhideFadeLogic();
 };
+
 function unhideFadeLogic() {
   let timeout = null;
   function show() {
@@ -440,6 +470,7 @@ function unhideFadeLogic() {
   show();
 }
 unhideFadeLogic();
+
 // Keyboard nav
 document.addEventListener('keydown', (e)=>{
   if (state.menuHidden) {
@@ -485,3 +516,4 @@ setInterval(()=>{
   if (state.mode === 'stopwatch' && state.stopwatch.running) renderStopwatch();
   if (state.mode === 'timer' && state.timer.running) renderTimer();
 }, 100);
+
