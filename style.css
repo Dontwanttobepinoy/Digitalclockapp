@@ -11,8 +11,6 @@
   --accent: #2bb673;
   --btn-hover: #fff;
   --btn-inactive: #a0a0a0;
-  --btn-toggle-on: #fff;
-  --btn-toggle-off: #a0a0a0;
   --highlight: #fff;
   --fade: 0.75;
   --menu-height: 64px;
@@ -46,6 +44,7 @@ body, #app {
   margin-bottom: 0;
 }
 
+/* Remove ALL glow for all clocks */
 .digital {
   font-family: 'Digital7', monospace;
   font-size: 17vw;
@@ -59,6 +58,7 @@ body, #app {
   align-items: center;
   margin-top: 0;
   margin-bottom: 0;
+  text-shadow: none !important;
 }
 
 .digital.date {
@@ -67,6 +67,7 @@ body, #app {
   margin-bottom: 0.5em;
   min-height: unset;
   letter-spacing: 0.12em;
+  text-shadow: none !important;
 }
 
 #stopwatch-ms, #timer-ms {
@@ -75,6 +76,7 @@ body, #app {
   letter-spacing: 0.12em;
   color: #aaa;
   text-align: center;
+  text-shadow: none !important;
 }
 
 #clock-container, #timer-container, #stopwatch-container {
@@ -102,19 +104,25 @@ body, #app {
 
 /* TIMER CONTROLS */
 #timer-controls {
-  margin-top: 1.5em;
   display: flex;
   flex-direction: row;
-  gap: 2.5vw;
-  align-items: flex-end;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 3vw;
+  margin-top: 2em;
+  width: 100vw;
+}
+.timer-input-col {
+  display: flex;
+  flex-direction: row;
+  gap: 3vw;
   justify-content: center;
 }
 .timer-setter-col {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.15em;
+  gap: 0.45em;
 }
 .timer-setter-col input {
   width: 3.6em;
@@ -138,47 +146,52 @@ body, #app {
   -moz-appearance: textfield;
 }
 
-/* Make + and − buttons the largest, truly thumb-sized for mobile */
+/* Make + and − buttons truly thumb-sized for mobile */
 .big-btn {
-  font-size: 5.5em !important;
-  min-width: 2.9em;
-  min-height: 2.6em;
-  padding: 0.12em 0.48em !important;
-  line-height: 1.25;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 3.8em !important;
+  min-width: 1.4em;
+  min-height: 1em;
+  padding: 0.06em 0.25em !important;
+  line-height: 1.18;
   background: none !important;
   border: none !important;
   box-shadow: none !important;
 }
 
 .inc-btn, .dec-btn {
-  color: #fff;
+  color: #a0a0a0 !important;
   cursor: pointer;
   border-radius: 2em;
   outline: none;
   appearance: none;
   border: none;
   background: none;
-  transition: color 0.15s;
+  transition: color 0.15s, background 0.13s, opacity 0.18s;
+  opacity: 0.58;
 }
 .inc-btn:focus, .dec-btn:focus { outline: none; }
-.inc-btn:hover, .dec-btn:hover { color: var(--accent); }
+.inc-btn:hover, .dec-btn:hover, .inc-btn:active, .dec-btn:active {
+  color: #fff !important;
+  background: #000 !important;
+  opacity: 1;
+}
 
+/* TIMER BUTTON COLUMN: vertical stack, tight and higher */
 .timer-btns {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: stretch;
+  gap: 0.18em;
+  align-items: center;
+  justify-content: flex-start;
   margin-left: 2vw;
-  gap: 0.35em;
+  margin-top: -1.2em;
+  padding-top: 0;
 }
 
 .text-btn,
 .inc-btn, .dec-btn {
   background: none !important;
-  color: var(--btn-inactive) !important;
+  color: #a0a0a0 !important;
   font-family: inherit !important;
   font-size: 1.08em !important;
   padding: 0.48em 0.9em !important;
@@ -190,11 +203,14 @@ body, #app {
   text-align: center;
   box-shadow: none;
   appearance: none;
-  transition: color 0.18s, text-shadow 0.2s;
+  transition: color 0.18s, text-shadow 0.2s, background 0.13s, opacity 0.18s;
+  opacity: 0.58 !important;
 }
-.text-btn:focus, .text-btn:hover {
-  color: var(--btn-hover) !important;
+.text-btn:focus, .text-btn:hover, .text-btn:active {
+  color: #fff !important;
   text-shadow: 0 0 8px var(--accent), 0 0 4px #fff;
+  background: #000 !important;
+  opacity: 1 !important;
 }
 
 /* MENU BAR + BUTTONS */
@@ -215,7 +231,7 @@ nav#menu-bar {
 
 .menu-btn {
   background: none;
-  color: var(--btn-inactive);
+  color: #a0a0a0 !important;
   font-family: inherit;
   font-size: 1.08em;
   padding: 0.48em 0.9em;
@@ -223,31 +239,33 @@ nav#menu-bar {
   border: none;
   cursor: pointer;
   outline: none;
-  transition: color 0.18s, text-shadow 0.2s;
+  transition: color 0.18s, text-shadow 0.2s, background 0.13s, opacity 0.18s;
   border-radius: 2em;
   letter-spacing: 0.04em;
   min-width: 3.4em;
   text-align: center;
   box-shadow: none;
   appearance: none;
+  opacity: 0.58 !important;
 }
+
+/* All menu buttons (including toggles): highlight on hover, focus, or when active */
 .menu-btn:focus,
-.menu-btn:hover {
-  color: var(--btn-hover);
+.menu-btn:hover,
+.menu-btn:active,
+.menu-btn.active,
+.menu-btn-toggle.active,
+.menu-btn-toggle[aria-pressed="true"] {
+  color: #fff !important;
   text-shadow: 0 0 8px var(--accent), 0 0 4px #fff;
-}
-.menu-btn.active {
-  color: var(--highlight) !important;
-  text-shadow: 0 0 10px #fff;
-}
-.menu-btn-toggle[aria-pressed="true"], .menu-btn-toggle.active {
-  color: var(--btn-toggle-on) !important;
-  text-shadow: none;
-  background: none;
+  background: #000 !important;
+  opacity: 1 !important;
 }
 .menu-btn-toggle[aria-pressed="false"] {
-  color: var(--btn-inactive) !important;
+  color: #a0a0a0 !important;
   text-shadow: none !important;
+  background: none !important;
+  opacity: 0.58 !important;
 }
 .menu-btn-hide {
   font-size: 1.08em !important;
