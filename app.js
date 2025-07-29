@@ -18,13 +18,26 @@ let state = {
   format24h: getSetting('format24h', false),
   mute: getSetting('mute', false),
   menuHidden: getSetting('menuHidden', true),
-  timer: { running: false, time: 0, interval: null, ms: 0, alarmActive: false },
-  stopwatch: { running: false, time: 0, interval: null, ms: 0 }
+  timer: {
+    running: false,
+    time: 0,
+    ms: 0,
+    interval: null,
+    alarmActive: false,
+    endTime: null // For wall-clock timer
+  },
+  stopwatch: {
+    running: false,
+    time: 0,
+    ms: 0,
+    interval: null,
+    startTime: null,       // for wall-clock stopwatch
+    pausedDuration: 0,     // total ms paused
+    pausedAt: null         // when paused
+  }
 };
 let isColonOn = true;
 let colonInterval = null;
-let stopwatchMSInterval = null;
-let timerMSInterval = null;
 function startColonBlink() {
   if (colonInterval) clearInterval(colonInterval);
   colonInterval = setInterval(() => {
@@ -55,7 +68,7 @@ const btns = {
 };
 const alarmAudio = document.getElementById('alarm-sound');
 const timerAudio = document.getElementById('timer-sound');
-const clickAudio = document.getElementById('click-sound'); // click.wav sound
+const clickAudio = document.getElementById('click-sound');
 
 // ---- Util ---- //
 function getBlinkingColon(blink) {
@@ -72,7 +85,8 @@ function renderClock() {
   let m = now.getMinutes();
   let ap = '';
   if (!state.format24h) {
-    ap = h >= 12 ? ' PM' : ' AM';
+    ap = h >= 12 ? ' AM' : ' AM';
+    if (h >= 12) ap = ' PM';
     h = h % 12; if (h === 0) h = 12;
   }
   let sep = getBlinkingColon(true);
@@ -81,6 +95,7 @@ function renderClock() {
   document.getElementById('clock-date').textContent =
     now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).replace(/ /g, '/').replace(/,/, '').toUpperCase();
 }
+
 // ---- TIMER ---- //
 let timerInput = {
   hours: document.getElementById('timer-hours'),
@@ -117,46 +132,40 @@ function playSound(audioElem) {
     audioElem.play().catch(()=>{});
   } catch {}
 }
-function timerTick() {
-  if (state.timer.time > 0 || state.timer.ms > 0) {
-    if (state.timer.ms === 0) {
-      if (state.timer.time > 0) {
-        state.timer.time--;
-        state.timer.ms = 990;
-      }
-    } else {
-      state.timer.ms -= 10;
-      if (state.timer.ms < 0) state.timer.ms = 0;
-    }
-    renderTimer();
-    if (state.timer.time === 0 && state.timer.ms === 0) {
-      if (!state.mute) {
-        playSound(timerAudio);
-        playSound(alarmAudio);
-        state.timer.alarmActive = true;
-      }
-      clearInterval(state.timer.interval);
-      clearInterval(timerMSInterval);
-      state.timer.running = false;
-      renderTimer();
-    }
-  }
-}
+
 function timerStart() {
-  // Prevent starting if timer is already running or time is zero
   if (state.timer.running || (state.timer.time <= 0 && state.timer.ms <= 0)) return;
+  let totalMS = state.timer.time * 1000 + state.timer.ms;
+  state.timer.endTime = Date.now() + totalMS;
   state.timer.running = true;
   state.timer.alarmActive = false;
-  state.timer.interval = setInterval(timerTick, 1000);
-  timerMSInterval = setInterval(() => {
-    if (state.timer.running) timerTick();
-  }, 10);
+  state.timer.interval = setInterval(timerTick, 100);
   renderTimer();
+}
+function timerTick() {
+  if (!state.timer.running) return;
+  let remaining = state.timer.endTime - Date.now();
+  if (remaining < 0) remaining = 0;
+  let t = Math.floor(remaining / 1000);
+  let ms = Math.floor(remaining % 1000);
+  state.timer.time = t;
+  state.timer.ms = ms;
+  renderTimer();
+
+  if (remaining <= 0) {
+    if (!state.mute) {
+      playSound(timerAudio);
+      playSound(alarmAudio);
+      state.timer.alarmActive = true;
+    }
+    clearInterval(state.timer.interval);
+    state.timer.running = false;
+    renderTimer();
+  }
 }
 function timerStop() {
   state.timer.running = false;
   clearInterval(state.timer.interval);
-  clearInterval(timerMSInterval);
   if (state.timer.alarmActive) {
     alarmAudio.pause();
     alarmAudio.currentTime = 0;
@@ -164,18 +173,35 @@ function timerStop() {
   }
   timerAudio.pause();
   timerAudio.currentTime = 0;
+  state.timer.endTime = null;
   renderTimer();
 }
-function timerReset() {
+function timerResetToInput() {
   timerStop();
-  // Clear all input fields and state (per new spec)
+  let h = parseInt(timerInput.hours.value, 10) || 0;
+  let m = parseInt(timerInput.minutes.value, 10) || 0;
+  let s = parseInt(timerInput.seconds.value, 10) || 0;
+  state.timer.time = h * 3600 + m * 60 + s;
+  state.timer.ms = 0;
+  state.timer.endTime = null;
+  renderTimer();
+}
+function timerClear() {
+  timerStop();
   timerInput.hours.value = '';
   timerInput.minutes.value = '';
   timerInput.seconds.value = '';
   state.timer.time = 0;
   state.timer.ms = 0;
+  state.timer.endTime = null;
   renderTimer();
 }
+
+document.getElementById('timer-start').onclick = timerStart;
+document.getElementById('timer-stop').onclick = timerStop;
+document.getElementById('timer-reset').onclick = timerResetToInput;
+document.getElementById('timer-clear').onclick = timerClear;
+
 document.querySelectorAll('.inc-btn').forEach(btn => {
   btn.onclick = () => {
     let type = btn.getAttribute('data-type');
@@ -198,22 +224,21 @@ document.querySelectorAll('.dec-btn').forEach(btn => {
     timerUpdateStateFromInputs();
   };
 });
-// When user manually edits timer inputs, update timer state
 timerInput.hours.addEventListener('input', timerUpdateStateFromInputs);
 timerInput.minutes.addEventListener('input', timerUpdateStateFromInputs);
 timerInput.seconds.addEventListener('input', timerUpdateStateFromInputs);
 
 function timerUpdateStateFromInputs() {
-  // On any input, reset timer state to current values but do not auto-start
   let h = parseInt(timerInput.hours.value, 10) || 0;
   let m = parseInt(timerInput.minutes.value, 10) || 0;
   let s = parseInt(timerInput.seconds.value, 10) || 0;
   state.timer.time = h * 3600 + m * 60 + s;
   state.timer.ms = 0;
+  state.timer.endTime = null;
   renderTimer();
 }
 
-// ---- STOPWATCH ---- //
+// ---- STOPWATCH (wall clock accurate, with pause/resume bug FIXED) ---- //
 let swDisplay = document.getElementById('stopwatch-display');
 let swMsDisplay = document.getElementById('stopwatch-ms');
 function renderStopwatch() {
@@ -229,38 +254,118 @@ function renderStopwatch() {
     ? (ms.toString().padStart(3, '0')) + ' ms'
     : '000 ms';
 }
+
+// Wall clock stopwatch tick
 function swTick() {
-  state.stopwatch.time++;
+  if (!state.stopwatch.running) return;
+  const now = Date.now();
+  let elapsed = now - state.stopwatch.startTime - state.stopwatch.pausedDuration;
+  if (elapsed < 0) elapsed = 0;
+  let t = Math.floor(elapsed / 1000);
+  let ms = Math.floor(elapsed % 1000);
+  state.stopwatch.time = t;
+  state.stopwatch.ms = ms;
   renderStopwatch();
 }
-function swMsTick() {
-  state.stopwatch.ms += 10;
-  if (state.stopwatch.ms >= 1000) {
-    state.stopwatch.ms = 0;
-  }
-  renderStopwatch();
-}
+
+// FIXED PAUSE/RESUME BUG:
 function startStopwatch() {
   if (state.stopwatch.running) return;
   state.stopwatch.running = true;
-  state.stopwatch.interval = setInterval(swTick, 1000);
-  stopwatchMSInterval = setInterval(swMsTick, 10);
+  if (state.stopwatch.startTime === null) {
+    // Not started yet
+    state.stopwatch.startTime = Date.now();
+    state.stopwatch.pausedDuration = 0;
+    state.stopwatch.pausedAt = null;
+  } else if (state.stopwatch.pausedAt !== null) {
+    // Resume from pause; add only the duration paused now
+    state.stopwatch.pausedDuration += Date.now() - state.stopwatch.pausedAt;
+    state.stopwatch.pausedAt = null;
+  }
+  state.stopwatch.interval = setInterval(swTick, 33); // update ~30 fps for smoothness
   renderStopwatch();
 }
+
 function stopStopwatch() {
+  if (!state.stopwatch.running) return;
   state.stopwatch.running = false;
   clearInterval(state.stopwatch.interval);
-  clearInterval(stopwatchMSInterval);
+  state.stopwatch.pausedAt = Date.now();
   renderStopwatch();
 }
-function resetStopwatch() {
+// CLEAR for stopwatch
+function clearStopwatch() {
   stopStopwatch();
   state.stopwatch.time = 0;
   state.stopwatch.ms = 0;
+  state.stopwatch.startTime = null;
+  state.stopwatch.pausedDuration = 0;
+  state.stopwatch.pausedAt = null;
   swLaps = [];
   updateLapList();
   renderStopwatch();
 }
+
+document.getElementById('sw-start').onclick = startStopwatch;
+document.getElementById('sw-stop').onclick = stopStopwatch;
+document.getElementById('sw-reset').onclick = clearStopwatch;
+
+// ---- LAP Feature (shows only 4 lines, scrolls for overflow, always fixed height) ---- //
+let swLapList = document.getElementById('stopwatch-laps');
+let swLaps = [];
+function updateLapList() {
+  swLapList.innerHTML = '';
+  for (let i = 0; i < swLaps.length; ++i) {
+    const idx = swLaps.length - i;
+    const lap = swLaps[i];
+    const div = document.createElement('div');
+    div.textContent = 'LAP ' + idx + '  ' + lap;
+    if (i === 0) div.classList.add('latest');
+    swLapList.appendChild(div);
+  }
+  swLapList.scrollTop = 0;
+}
+function addLap() {
+  if (!state.stopwatch.running) return;
+  // Calculate lap time using accurate wall-clock logic
+  const now = Date.now();
+  let elapsed = now - state.stopwatch.startTime - state.stopwatch.pausedDuration;
+  if (elapsed < 0) elapsed = 0;
+  let h = Math.floor(elapsed / 1000 / 3600);
+  let m = Math.floor((elapsed / 1000 % 3600) / 60);
+  let s = Math.floor((elapsed / 1000) % 60);
+  const formatted = h.toString().padStart(2, '0') + ':' +
+                    m.toString().padStart(2, '0') + ':' +
+                    s.toString().padStart(2, '0');
+  swLaps.unshift(formatted);
+  if (swLaps.length > 100) swLaps.length = 100;
+  updateLapList();
+}
+document.getElementById('sw-lap').onclick = addLap;
+
+// FULLSCREEN toggle
+btns.fullscreen.onclick = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(console.error);
+  } else {
+    document.exitFullscreen().catch(console.error);
+  }
+};
+
+// ---- PLAY click.wav on every button press (unless muted) ---- //
+document.addEventListener('DOMContentLoaded', function () {
+  document.body.addEventListener('click', function (e) {
+    const isButton = e.target.tagName === "BUTTON";
+    if (!isButton) return;
+    if (state.mute) return;
+    if (clickAudio) {
+      try {
+        clickAudio.currentTime = 0;
+        clickAudio.play();
+      } catch {}
+    }
+  }, true);
+});
 
 // ---- Menu & Settings ---- //
 function updateModeUI() {
@@ -359,68 +464,6 @@ document.addEventListener('keydown', (e)=>{
     btns[state.mode].focus();
   }
 });
-// Timer controls
-document.getElementById('timer-start').onclick = timerStart;
-document.getElementById('timer-stop').onclick = timerStop;
-document.getElementById('timer-reset').onclick = timerReset;
-// Stopwatch controls
-document.getElementById('sw-start').onclick = startStopwatch;
-document.getElementById('sw-stop').onclick = stopStopwatch;
-document.getElementById('sw-reset').onclick = resetStopwatch;
-
-// ---- LAP Feature (shows only 4 lines, scrolls for overflow, always fixed height) ---- //
-let swLapList = document.getElementById('stopwatch-laps');
-let swLaps = [];
-function updateLapList() {
-  swLapList.innerHTML = '';
-  // Show all laps, but div is fixed 4 lines tall and scrolls for overflow
-  for (let i = 0; i < swLaps.length; ++i) {
-    const idx = swLaps.length - i;
-    const lap = swLaps[i];
-    const div = document.createElement('div');
-    div.textContent = 'LAP ' + idx + '  ' + lap;
-    if (i === 0) div.classList.add('latest');
-    swLapList.appendChild(div);
-  }
-  swLapList.scrollTop = 0;
-}
-function addLap() {
-  if (!state.stopwatch.running) return;
-  const t = state.stopwatch.time;
-  const ms = state.stopwatch.ms;
-  let h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
-  const formatted = h.toString().padStart(2, '0') + ':' +
-                    m.toString().padStart(2, '0') + ':' +
-                    s.toString().padStart(2, '0');
-  swLaps.unshift(formatted);
-  if (swLaps.length > 100) swLaps.length = 100;
-  updateLapList();
-}
-document.getElementById('sw-lap').onclick = addLap;
-
-// FULLSCREEN toggle
-btns.fullscreen.onclick = () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(console.error);
-  } else {
-    document.exitFullscreen().catch(console.error);
-  }
-};
-
-// ---- PLAY click.wav on every button press (unless muted) ---- //
-document.addEventListener('DOMContentLoaded', function () {
-  document.body.addEventListener('click', function (e) {
-    const isButton = e.target.tagName === "BUTTON";
-    if (!isButton) return;
-    if (state.mute) return;
-    if (clickAudio) {
-      try {
-        clickAudio.currentTime = 0;
-        clickAudio.play();
-      } catch {}
-    }
-  }, true);
-});
 
 // ---- Init ---- //
 function appInit() {
@@ -441,4 +484,4 @@ setInterval(()=>{
   if (state.mode === 'clock') renderClock();
   if (state.mode === 'stopwatch' && state.stopwatch.running) renderStopwatch();
   if (state.mode === 'timer' && state.timer.running) renderTimer();
-}, 1000);
+}, 100);
