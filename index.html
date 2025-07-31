@@ -1,90 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-  <title>Digital Clock App</title>
-  <meta name="description" content="A minimalist, mobile-friendly digital clock, timer, and stopwatch web app. Free, touch-optimized, and works on any device.">
-  <meta name="keywords" content="digital clock, online clock, web clock, timer, stopwatch, minimalist, digitalclockapp">
-  <meta name="theme-color" content="#000000">
-  <link rel="icon" href="logo.png">
-  <link rel="apple-touch-icon" href="logo.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Digital Clock App - Minimalist clock, timer, and stopwatch">
+    <title>Digital Clock App</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div id="app">
-  <!-- CLOCK -->
-  <div id="clock-container" class="active">
-    <div class="clock-group digital-group">
-      <div id="clock" class="digital"></div>
-      <div id="date" class="digital date"></div>
+    <!-- Header Banner -->
+    <div id="headerBanner" class="header-banner">
+        DIGITALCLOCKAPP.COM
     </div>
-  </div>
 
-  <!-- TIMER -->
-  <div id="timer-container">
-    <div class="clock-group digital-group">
-      <div id="timer" class="digital"></div>
-      <div id="timer-ms"></div>
-    </div>
-    <div class="timer-center-wrap">
-      <div class="timer-set-row">
-        <div class="timer-setter-col">
-          <button id="timer-inc-hh" class="big-btn inc-btn">+</button>
-          <input id="timer-hh" type="number" min="0" max="99" placeholder="HH" inputmode="numeric" pattern="[0-9]*" aria-label="Hours">
-          <button id="timer-dec-hh" class="big-btn dec-btn">−</button>
+    <!-- Main Content Container -->
+    <main id="mainContent" class="main-content">
+        <!-- Clock Mode -->
+        <div id="clockMode" class="mode-container active">
+            <div class="clock-container">
+                <div class="time-display" id="timeDisplay">12:00AM</div>
+                <div class="date-display" id="dateDisplay">JANUARY/01/24</div>
+                <div class="clock-controls">
+                    <button id="localBtn" class="control-btn">LOCAL</button>
+                    <button id="dualClockBtn" class="control-btn">+</button>
+                </div>
+            </div>
         </div>
-        <div class="timer-setter-col">
-          <button id="timer-inc-mm" class="big-btn inc-btn">+</button>
-          <input id="timer-mm" type="number" min="0" max="59" placeholder="MM" inputmode="numeric" pattern="[0-9]*" aria-label="Minutes">
-          <button id="timer-dec-mm" class="big-btn dec-btn">−</button>
-        </div>
-        <div class="timer-setter-col">
-          <button id="timer-inc-ss" class="big-btn inc-btn">+</button>
-          <input id="timer-ss" type="number" min="0" max="59" placeholder="SS" inputmode="numeric" pattern="[0-9]*" aria-label="Seconds">
-          <button id="timer-dec-ss" class="big-btn dec-btn">−</button>
-        </div>
-      </div>
-      <div class="timer-action-row">
-        <button id="timer-start" class="text-btn" tabindex="0">START</button>
-        <button id="timer-stop" class="text-btn" tabindex="0">STOP</button>
-        <button id="timer-reset" class="text-btn" tabindex="0">RESET</button>
-        <button id="timer-clear" class="text-btn" tabindex="0">CLEAR</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- STOPWATCH -->
-  <div id="stopwatch-container">
-    <div class="clock-group digital-group">
-      <div id="stopwatch" class="digital"></div>
-      <div id="stopwatch-ms"></div>
-    </div>
-    <div class="stopwatch-action-row">
-      <button id="stopwatch-start" class="text-btn" tabindex="0">START</button>
-      <button id="stopwatch-stop" class="text-btn" tabindex="0">STOP</button>
-      <button id="stopwatch-lap" class="text-btn" tabindex="0">LAP</button>
-      <button id="stopwatch-reset" class="text-btn" tabindex="0">RESET</button>
-    </div>
-    <div id="lap-list" class="lap-list"></div>
-  </div>
-</div>
+        <!-- Dual Clock Mode -->
+        <div id="dualClockMode" class="mode-container dual-clock-container">
+            <div class="clock-half" id="leftClock">
+                <div class="time-display" id="leftTimeDisplay">12:00AM</div>
+                <div class="date-display" id="leftDateDisplay">JANUARY/01/24</div>
+                <div class="clock-controls">
+                    <button class="control-btn local-btn">LOCAL</button>
+                    <button class="control-btn close-btn">X</button>
+                </div>
+            </div>
+            <div class="clock-half" id="rightClock">
+                <div class="time-display" id="rightTimeDisplay">12:00AM</div>
+                <div class="date-display" id="rightDateDisplay">JANUARY/01/24</div>
+                <div class="clock-controls">
+                    <button class="control-btn local-btn">LOCAL</button>
+                    <button class="control-btn close-btn">X</button>
+                </div>
+            </div>
+        </div>
 
-<nav id="menu-bar">
-  <button id="clock-btn" class="menu-btn" tabindex="0" aria-label="Clock">CLOCK</button>
-  <button id="timer-btn" class="menu-btn" tabindex="0" aria-label="Timer">TIMER</button>
-  <button id="stopwatch-btn" class="menu-btn" tabindex="0" aria-label="Stopwatch">STOPWATCH</button>
-  <span class="divider">|</span>
-  <button id="toggle-24h" class="menu-btn menu-btn-toggle" tabindex="0" aria-label="Toggle 24 Hour">24H</button>
-  <button id="toggle-mute" class="menu-btn menu-btn-toggle" tabindex="0" aria-label="Toggle Mute">MUTE</button>
-  <button id="toggle-fullscreen" class="menu-btn menu-btn-toggle" tabindex="0" aria-label="Fullscreen">FULLSCREEN</button>
-  <button id="hide-menu-btn" class="menu-btn menu-btn-hide" tabindex="0">HIDE</button>
-</nav>
-<button id="unhide-btn" class="menu-btn menu-btn-hide" style="display:none;">MENU</button>
-<script src="app.js"></script>
+        <!-- Timer Mode -->
+        <div id="timerMode" class="mode-container">
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+            <div class="milliseconds-display" id="timerMilliseconds">000ms</div>
+            
+            <div class="timer-controls">
+                <div class="time-inputs">
+                    <div class="input-group">
+                        <button class="increment-btn" data-target="hours">+</button>
+                        <input type="number" id="hoursInput" class="time-input" min="0" max="23" value="0">
+                        <button class="decrement-btn" data-target="hours">−</button>
+                    </div>
+                    <span class="separator">:</span>
+                    <div class="input-group">
+                        <button class="increment-btn" data-target="minutes">+</button>
+                        <input type="number" id="minutesInput" class="time-input" min="0" max="59" value="0">
+                        <button class="decrement-btn" data-target="minutes">−</button>
+                    </div>
+                    <span class="separator">:</span>
+                    <div class="input-group">
+                        <button class="increment-btn" data-target="seconds">+</button>
+                        <input type="number" id="secondsInput" class="time-input" min="0" max="59" value="0">
+                        <button class="decrement-btn" data-target="seconds">−</button>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="timerStartBtn" class="action-btn">START</button>
+                    <button id="timerResetBtn" class="action-btn">RESET</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stopwatch Mode -->
+        <div id="stopwatchMode" class="mode-container">
+            <div class="stopwatch-display" id="stopwatchDisplay">00:00:00</div>
+            <div class="milliseconds-display" id="stopwatchMilliseconds">000ms</div>
+            
+            <div class="stopwatch-controls">
+                <div class="action-buttons">
+                    <button id="stopwatchStartBtn" class="action-btn">START</button>
+                    <button id="stopwatchLapBtn" class="action-btn">LAP</button>
+                    <button id="stopwatchResetBtn" class="action-btn">RESET</button>
+                </div>
+                
+                <div id="lapList" class="lap-list"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Timezone Modal -->
+    <div id="timezoneModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Timezone</h3>
+                <button class="close-modal">×</button>
+            </div>
+            <div class="timezone-list" id="timezoneList"></div>
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav id="navigationMenu" class="navigation-menu">
+        <button id="clockBtn" class="nav-btn active">CLOCK</button>
+        <button id="timerBtn" class="nav-btn">TIMER</button>
+        <button id="stopwatchBtn" class="nav-btn">STOPWATCH</button>
+        <span class="nav-divider">|</span>
+        <button id="formatToggle" class="nav-btn">24H</button>
+        <button id="muteToggle" class="nav-btn">MUTE</button>
+        <button id="fullscreenBtn" class="nav-btn">FULLSCREEN</button>
+        <button id="hideMenuBtn" class="nav-btn">HIDE</button>
+    </nav>
+
+    <!-- Menu Show Button (when hidden) -->
+    <button id="showMenuBtn" class="show-menu-btn">MENU</button>
+
+    <!-- Audio Elements -->
+    <audio id="clickSound" preload="auto">
+        <source src="click.wav" type="audio/wav">
+    </audio>
+    <audio id="alarmSound" preload="auto">
+        <source src="alarm.wav" type="audio/wav">
+    </audio>
+
+    <script src="script.js"></script>
 </body>
 </html>
