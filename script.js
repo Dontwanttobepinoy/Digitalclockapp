@@ -85,17 +85,27 @@ class DigitalClockApp {
     }
     
     setupEventListeners() {
-        // Navigation buttons
-        document.getElementById('clockBtn').addEventListener('click', () => this.switchMode('clock'));
-        document.getElementById('timerBtn').addEventListener('click', () => this.switchMode('timer'));
-        document.getElementById('stopwatchBtn').addEventListener('click', () => this.switchMode('stopwatch'));
+        // Navigation buttons - with null checks
+        const clockBtn = document.getElementById('clockBtn');
+        const timerBtn = document.getElementById('timerBtn');
+        const stopwatchBtn = document.getElementById('stopwatchBtn');
         
-        // Toggle buttons
-        document.getElementById('formatToggle').addEventListener('click', () => this.toggleTimeFormat());
-        document.getElementById('muteToggle').addEventListener('click', () => this.toggleMute());
-        document.getElementById('fullscreenBtn').addEventListener('click', () => this.toggleFullscreen());
-        document.getElementById('hideMenuBtn').addEventListener('click', () => this.hideMenu());
-        document.getElementById('showMenuBtn').addEventListener('click', () => this.showMenu());
+        if (clockBtn) clockBtn.addEventListener('click', () => this.switchMode('clock'));
+        if (timerBtn) timerBtn.addEventListener('click', () => this.switchMode('timer'));
+        if (stopwatchBtn) stopwatchBtn.addEventListener('click', () => this.switchMode('stopwatch'));
+        
+        // Toggle buttons - with null checks
+        const formatToggle = document.getElementById('formatToggle');
+        const muteToggle = document.getElementById('muteToggle');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const hideMenuBtn = document.getElementById('hideMenuBtn');
+        const showMenuBtn = document.getElementById('showMenuBtn');
+        
+        if (formatToggle) formatToggle.addEventListener('click', () => this.toggleTimeFormat());
+        if (muteToggle) muteToggle.addEventListener('click', () => this.toggleMute());
+        if (fullscreenBtn) fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+        if (hideMenuBtn) hideMenuBtn.addEventListener('click', () => this.hideMenu());
+        if (showMenuBtn) showMenuBtn.addEventListener('click', () => this.showMenu());
         
         // Clock mode buttons
         document.getElementById('localBtn').addEventListener('click', () => this.openTimezoneModal('main'));
@@ -384,6 +394,12 @@ class DigitalClockApp {
                     display.classList.remove('blink-colon');
                 }
             });
+        } else {
+            // Remove blinking when not needed
+            const displays = document.querySelectorAll('.timer-display, .stopwatch-display');
+            displays.forEach(display => {
+                display.classList.remove('blink-colon');
+            });
         }
     }
     
@@ -481,6 +497,11 @@ class DigitalClockApp {
             input.value = 0;
         } else if (value > max) {
             input.value = max;
+        }
+        
+        // Ensure two-digit format for display
+        if (input.value.length === 1) {
+            input.value = '0' + input.value;
         }
     }
     
@@ -667,8 +688,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Handle fullscreen change events
 document.addEventListener('fullscreenchange', () => {
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
     if (!document.fullscreenElement) {
         document.body.classList.remove('fullscreen-mode');
-        document.getElementById('fullscreenBtn').textContent = 'FULLSCREEN';
+        if (fullscreenBtn) fullscreenBtn.textContent = 'FULLSCREEN';
+    }
+});
+
+// Also handle webkit and moz prefixed events for better browser support
+document.addEventListener('webkitfullscreenchange', () => {
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (!document.webkitFullscreenElement) {
+        document.body.classList.remove('fullscreen-mode');
+        if (fullscreenBtn) fullscreenBtn.textContent = 'FULLSCREEN';
+    }
+});
+
+document.addEventListener('mozfullscreenchange', () => {
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (!document.mozFullScreenElement) {
+        document.body.classList.remove('fullscreen-mode');
+        if (fullscreenBtn) fullscreenBtn.textContent = 'FULLSCREEN';
     }
 });
