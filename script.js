@@ -530,7 +530,12 @@ class DigitalClockApp {
         document.getElementById('stopwatchStartBtn').textContent = 'START';
         document.getElementById('stopwatchDisplay').textContent = '00:00:00';
         document.getElementById('stopwatchMilliseconds').textContent = '000ms';
-        document.getElementById('lapList').innerHTML = '';
+        
+        // Clear lap list
+        const lapList = document.getElementById('lapList');
+        if (lapList) {
+            lapList.innerHTML = '';
+        }
     }
     
     recordLap() {
@@ -542,8 +547,13 @@ class DigitalClockApp {
             const lapNumber = this.stopwatchState.laps.length;
             const timeStr = this.formatStopwatchTime(lapTime);
             
+            // Remove 'recent' class from all existing laps
+            document.querySelectorAll('.lap-item').forEach(item => {
+                item.classList.remove('recent');
+            });
+            
             const lapItem = document.createElement('div');
-            lapItem.className = 'lap-item';
+            lapItem.className = 'lap-item recent';
             lapItem.innerHTML = `
                 <span>LAP ${lapNumber}</span>
                 <span>${timeStr}</span>
