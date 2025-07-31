@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock App - Bug Testing</title>
+    <style>
+        body { font-family: monospace; background: #111; color: #fff; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #444; }
+        .error { color: #ff4444; }
+        .success { color: #44ff44; }
+        .warning { color: #ffff44; }
+        button { margin: 5px; padding: 10px; }
+        iframe { width: 100%; height: 600px; border: 1px solid #444; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Digital Clock App - Bug Testing</h1>
+    
+    <div class="test-section">
+        <h2>🔍 Automatic Bug Detection</h2>
+        <div id="bugResults"></div>
+        <button onclick="runBugTests()">Run Bug Tests</button>
+    </div>
+
+    <div class="test-section">
+        <h2>📱 Live App Testing</h2>
+        <iframe src="/" id="appFrame"></iframe>
+        <button onclick="testUserFlow()">Test User Flow</button>
+        <div id="flowResults"></div>
+    </div>
+
+    <script>
+        // Capture console errors from the main app
+        let errors = [];
+        let originalConsoleError = console.error;
+        console.error = function(...args) {
+            errors.push(args.join(' '));
+            originalConsoleError.apply(console, arguments);
+        };
+
+        function runBugTests() {
+            const results = document.getElementById('bugResults');
+            results.innerHTML = '<p>🔍 Running bug detection tests...</p>';
+            
+            const bugs = [];
+            
+            // Test 1: Check for JavaScript syntax errors
+            try {
+                fetch('/script.js')
+                    .then(response => response.text())
+                    .then(code => {
+                        try {
+                            new Function(code);
+                            addResult('✅ JavaScript syntax is valid', 'success');
+                        } catch (e) {
+                            addResult(`❌ JavaScript syntax error: ${e.message}`, 'error');
+                            bugs.push('Syntax Error');
+                        }
+                    });
+            } catch (e) {
+                addResult(`❌ Failed to load script.js: ${e.message}`, 'error');
+                bugs.push('Script Loading Error');
+            }
+
+            // Test 2: Check for missing CSS
+            fetch('/styles.css')
+                .then(response => {
+                    if (response.ok) {
+                        addResult('✅ CSS file loads successfully', 'success');
+                    } else {
+                        addResult('❌ CSS file failed to load', 'error');
+                        bugs.push('CSS Loading Error');
+                    }
+                })
+                .catch(e => {
+                    addResult(`❌ CSS loading error: ${e.message}`, 'error');
+                    bugs.push('CSS Error');
+                });
+
+            // Test 3: Check for audio file availability
+            ['click.wav', 'alarm.wav'].forEach(audioFile => {
+                fetch(`/${audioFile}`)
+                    .then(response => {
+                        if (response.ok && response.headers.get('content-length') > 100) {
+                            addResult(`✅ Audio file ${audioFile} available`, 'success');
+                        } else {
+                            addResult(`⚠️ Audio file ${audioFile} is empty or missing`, 'warning');
+                        }
+                    })
+                    .catch(e => {
+                        addResult(`⚠️ Audio file ${audioFile} not accessible`, 'warning');
+                    });
+            });
+
+            // Test 4: Check font availability
+            fetch('/digital-7.ttf')
+                .then(response => {
+                    if (response.ok && response.headers.get('content-length') > 1000) {
+                        addResult('✅ Digital-7 font file available', 'success');
+                    } else {
+                        addResult('⚠️ Digital-7 font file is placeholder/empty', 'warning');
+                    }
+                })
+                .catch(e => {
+                    addResult('⚠️ Digital-7 font file not accessible', 'warning');
+                });
+
+            // Test 5: Check for console errors after a delay
+            setTimeout(() => {
+                if (errors.length > 0) {
+                    addResult(`❌ Console errors detected: ${errors.join(', ')}`, 'error');
+                    bugs.push('Console Errors');
+                } else {
+                    addResult('✅ No console errors detected', 'success');
+                }
+                
+                // Final summary
+                setTimeout(() => {
+                    if (bugs.length === 0) {
+                        addResult('🎉 All critical tests passed! App appears functional.', 'success');
+                    } else {
+                        addResult(`⚠️ Found ${bugs.length} potential issues: ${bugs.join(', ')}`, 'warning');
+                    }
+                }, 1000);
+            }, 2000);
+        }
+
+        function addResult(message, type) {
+            const results = document.getElementById('bugResults');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        function testUserFlow() {
+            const results = document.getElementById('flowResults');
+            results.innerHTML = '<p>🔍 Testing user flow...</p>';
+            
+            const iframe = document.getElementById('appFrame');
+            
+            try {
+                // Test basic functionality by checking if key elements exist
+                setTimeout(() => {
+                    try {
+                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                        
+                        // Check if main elements exist
+                        const checks = [
+                            { id: 'timeDisplay', name: 'Time Display' },
+                            { id: 'dateDisplay', name: 'Date Display' },
+                            { id: 'navigationMenu', name: 'Navigation Menu' },
+                            { id: 'headerBanner', name: 'Header Banner' },
+                            { id: 'timerMode', name: 'Timer Mode' },
+                            { id: 'stopwatchMode', name: 'Stopwatch Mode' }
+                        ];
+                        
+                        checks.forEach(check => {
+                            const element = iframeDoc.getElementById(check.id);
+                            if (element) {
+                                addFlowResult(`✅ ${check.name} element found`, 'success');
+                            } else {
+                                addFlowResult(`❌ ${check.name} element missing`, 'error');
+                            }
+                        });
+                        
+                        // Check if clock is updating
+                        const timeDisplay = iframeDoc.getElementById('timeDisplay');
+                        if (timeDisplay) {
+                            const initialTime = timeDisplay.textContent;
+                            setTimeout(() => {
+                                if (timeDisplay.textContent !== initialTime) {
+                                    addFlowResult('✅ Clock is updating', 'success');
+                                } else {
+                                    addFlowResult('❌ Clock is not updating', 'error');
+                                }
+                            }, 2000);
+                        }
+                        
+                    } catch (e) {
+                        addFlowResult(`❌ Cannot access iframe content: ${e.message}`, 'error');
+                    }
+                }, 1000);
+                
+            } catch (e) {
+                addFlowResult(`❌ User flow test failed: ${e.message}`, 'error');
+            }
+        }
+
+        function addFlowResult(message, type) {
+            const results = document.getElementById('flowResults');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        // Auto-run tests on page load
+        setTimeout(runBugTests, 1000);
+    </script>
+</body>
+</html>
