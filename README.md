@@ -75,12 +75,10 @@ digitalclockapp/
 ├── index.html          # Main HTML structure
 ├── styles.css          # Complete CSS styling
 ├── script.js           # JavaScript functionality
-├── sounds/             # Audio files directory
-│   ├── README.md       # Sound files documentation
-│   ├── click.mp3       # Button click sound (optional)
-│   ├── click.wav       # Button click sound fallback (optional)
-│   ├── alarm.mp3       # Timer alarm sound (optional)
-│   └── alarm.wav       # Timer alarm sound fallback (optional)
+├── click.wav           # Button click sound
+├── alarm.wav           # Timer alarm sound
+├── sounds/             # Audio files directory (optional)
+│   └── README.md       # Sound files documentation
 └── README.md           # This file
 ```
 
