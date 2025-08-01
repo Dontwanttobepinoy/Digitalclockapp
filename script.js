@@ -81,6 +81,7 @@ class DigitalClockApp {
         
         // Initialize audio
         this.clickSound = document.getElementById('clickSound');
+        this.timerSound = document.getElementById('timerSound');
         this.alarmSound = document.getElementById('alarmSound');
     }
     
@@ -121,7 +122,7 @@ class DigitalClockApp {
         
         // Timer controls
         document.getElementById('timerStartBtn').addEventListener('click', () => this.toggleTimer());
-        document.getElementById('timerResetBtn').addEventListener('click', () => this.resetTimer());
+        document.getElementById('timerClearBtn').addEventListener('click', () => this.clearTimer());
         
         // Timer inputs
         document.querySelectorAll('.increment-btn').forEach(btn => {
@@ -133,8 +134,8 @@ class DigitalClockApp {
         
         // Stopwatch controls
         document.getElementById('stopwatchStartBtn').addEventListener('click', () => this.toggleStopwatch());
+        document.getElementById('stopwatchClearBtn').addEventListener('click', () => this.clearStopwatch());
         document.getElementById('stopwatchLapBtn').addEventListener('click', () => this.recordLap());
-        document.getElementById('stopwatchResetBtn').addEventListener('click', () => this.resetStopwatch());
         
         // Modal controls
         document.querySelector('.close-modal').addEventListener('click', () => this.closeTimezoneModal());
@@ -209,7 +210,15 @@ class DigitalClockApp {
         if (this.isMuted) return;
         
         try {
-            const sound = soundType === 'click' ? this.clickSound : this.alarmSound;
+            let sound;
+            if (soundType === 'click') {
+                sound = this.clickSound;
+            } else if (soundType === 'timer') {
+                sound = this.timerSound;
+            } else {
+                sound = this.alarmSound;
+            }
+            
             if (sound) {
                 sound.currentTime = 0;
                 sound.play().catch(e => console.log('Audio play failed:', e));
@@ -436,14 +445,19 @@ class DigitalClockApp {
         }
     }
     
-    resetTimer() {
+    clearTimer() {
         this.playSound('click');
         this.timerState.running = false;
         this.timerState.remaining = 0;
         
+        // Reset input fields
+        document.getElementById('hoursInput').value = '0';
+        document.getElementById('minutesInput').value = '0';
+        document.getElementById('secondsInput').value = '0';
+        
         document.getElementById('timerStartBtn').textContent = 'START';
         document.getElementById('timerDisplay').textContent = '00:00:00';
-        document.getElementById('timerMilliseconds').textContent = '000ms';
+        document.getElementById('timerMilliseconds').textContent = '.00';
     }
     
     updateTimerDisplay() {
@@ -454,7 +468,7 @@ class DigitalClockApp {
         const milliseconds = this.timerState.remaining % 1000;
         
         const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        const msStr = `${Math.floor(milliseconds).toString().padStart(3, '0')}ms`;
+        const msStr = `.${Math.floor(milliseconds / 10).toString().padStart(2, '0')}`;
         
         document.getElementById('timerDisplay').textContent = timeStr;
         document.getElementById('timerMilliseconds').textContent = msStr;
@@ -464,8 +478,8 @@ class DigitalClockApp {
         this.timerState.running = false;
         document.getElementById('timerStartBtn').textContent = 'START';
         document.getElementById('timerDisplay').textContent = '00:00:00';
-        document.getElementById('timerMilliseconds').textContent = '000ms';
-        this.playSound('alarm');
+        document.getElementById('timerMilliseconds').textContent = '.00';
+        this.playSound('timer');
     }
     
     incrementTimerValue(target) {
@@ -521,15 +535,14 @@ class DigitalClockApp {
         }
     }
     
-    resetStopwatch() {
+    clearStopwatch() {
         this.playSound('click');
         this.stopwatchState.running = false;
         this.stopwatchState.elapsed = 0;
         this.stopwatchState.laps = [];
         
         document.getElementById('stopwatchStartBtn').textContent = 'START';
-        document.getElementById('stopwatchDisplay').textContent = '00:00:00';
-        document.getElementById('stopwatchMilliseconds').textContent = '000ms';
+        document.getElementById('stopwatchDisplay').textContent = '00:00:00.00';
         
         // Clear lap list
         const lapList = document.getElementById('lapList');
@@ -565,12 +578,7 @@ class DigitalClockApp {
     
     updateStopwatchDisplay() {
         const timeStr = this.formatStopwatchTime(this.stopwatchState.elapsed);
-        const parts = timeStr.split('.');
-        const time = parts[0];
-        const ms = parts[1] || '000';
-        
-        document.getElementById('stopwatchDisplay').textContent = time;
-        document.getElementById('stopwatchMilliseconds').textContent = ms + 'ms';
+        document.getElementById('stopwatchDisplay').textContent = timeStr;
     }
     
     formatStopwatchTime(ms) {

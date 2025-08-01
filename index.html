@@ -53,7 +53,7 @@
         <!-- Timer Mode -->
         <div id="timerMode" class="mode-container">
             <div class="timer-display" id="timerDisplay">00:00:00</div>
-            <div class="milliseconds-display" id="timerMilliseconds">000ms</div>
+            <div class="milliseconds-display" id="timerMilliseconds">.00</div>
             
             <div class="timer-controls">
                 <div class="time-inputs">
@@ -78,21 +78,20 @@
                 
                 <div class="action-buttons">
                     <button id="timerStartBtn" class="action-btn">START</button>
-                    <button id="timerResetBtn" class="action-btn">RESET</button>
+                    <button id="timerClearBtn" class="action-btn">CLEAR</button>
                 </div>
             </div>
         </div>
 
         <!-- Stopwatch Mode -->
         <div id="stopwatchMode" class="mode-container">
-            <div class="stopwatch-display" id="stopwatchDisplay">00:00:00</div>
-            <div class="milliseconds-display" id="stopwatchMilliseconds">000ms</div>
+            <div class="stopwatch-display" id="stopwatchDisplay">00:00:00.00</div>
             
             <div class="stopwatch-controls">
                 <div class="action-buttons">
                     <button id="stopwatchStartBtn" class="action-btn">START</button>
+                    <button id="stopwatchClearBtn" class="action-btn">CLEAR</button>
                     <button id="stopwatchLapBtn" class="action-btn">LAP</button>
-                    <button id="stopwatchResetBtn" class="action-btn">RESET</button>
                 </div>
                 
                 <div id="lapList" class="lap-list"></div>
@@ -129,6 +128,9 @@
     <!-- Audio Elements -->
     <audio id="clickSound" preload="auto">
         <source src="./click.wav" type="audio/wav">
+    </audio>
+    <audio id="timerSound" preload="auto">
+        <source src="./timer.wav" type="audio/wav">
     </audio>
     <audio id="alarmSound" preload="auto">
         <source src="./alarm.wav" type="audio/wav">
