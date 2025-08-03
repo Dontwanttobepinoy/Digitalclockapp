@@ -67,21 +67,51 @@ class DigitalClockApp {
     }
     
     init() {
-        this.loadSettings();
-        this.setupEventListeners();
-        this.createTimezoneList();
-        this.startClockUpdate();
-        this.initBanner();
-        this.initNavigationAutoHide();
+        console.log('Digital Clock App initializing...');
         
-        // Initialize audio
-        this.clickSound = document.getElementById('clickSound');
-        this.alarmSound = document.getElementById('alarmSound');
-        
-        // Ensure mute state is properly set
-        if (this.isMuted) {
-            const muteBtn = document.getElementById('muteToggle');
-            if (muteBtn) muteBtn.classList.add('active');
+        try {
+            this.loadSettings();
+            this.setupEventListeners();
+            this.createTimezoneList();
+            this.startClockUpdate();
+            this.initBanner();
+            this.initNavigationAutoHide();
+            
+            // Initialize audio with error handling
+            this.clickSound = document.getElementById('clickSound');
+            this.alarmSound = document.getElementById('alarmSound');
+            
+            if (this.clickSound) {
+                this.clickSound.addEventListener('error', (e) => {
+                    console.error('Click sound failed to load:', e);
+                });
+                this.clickSound.addEventListener('canplaythrough', () => {
+                    console.log('Click sound loaded successfully');
+                });
+            } else {
+                console.error('Click sound element not found');
+            }
+            
+            if (this.alarmSound) {
+                this.alarmSound.addEventListener('error', (e) => {
+                    console.error('Alarm sound failed to load:', e);
+                });
+                this.alarmSound.addEventListener('canplaythrough', () => {
+                    console.log('Alarm sound loaded successfully');
+                });
+            } else {
+                console.error('Alarm sound element not found');
+            }
+            
+            // Ensure mute state is properly set
+            if (this.isMuted) {
+                const muteBtn = document.getElementById('muteToggle');
+                if (muteBtn) muteBtn.classList.add('active');
+            }
+            
+            console.log('Digital Clock App initialized successfully');
+        } catch (error) {
+            console.error('Error during initialization:', error);
         }
     }
     
@@ -499,21 +529,30 @@ class DigitalClockApp {
                 // Update left clock
                 const leftTime = this.formatTime(now, this.clockConfigs.left.format24h, this.clockConfigs.left.timezone);
                 const leftDate = this.formatDate(now, this.clockConfigs.left.timezone);
-                document.getElementById('leftTimeDisplay').textContent = leftTime;
-                document.getElementById('leftDateDisplay').textContent = leftDate;
+                const leftTimeDisplay = document.getElementById('leftTimeDisplay');
+                const leftDateDisplay = document.getElementById('leftDateDisplay');
+                
+                if (leftTimeDisplay) leftTimeDisplay.textContent = leftTime;
+                if (leftDateDisplay) leftDateDisplay.textContent = leftDate;
                 
                 // Update right clock
                 const rightTime = this.formatTime(now, this.clockConfigs.right.format24h, this.clockConfigs.right.timezone);
                 const rightDate = this.formatDate(now, this.clockConfigs.right.timezone);
-                document.getElementById('rightTimeDisplay').textContent = rightTime;
-                document.getElementById('rightDateDisplay').textContent = rightDate;
+                const rightTimeDisplay = document.getElementById('rightTimeDisplay');
+                const rightDateDisplay = document.getElementById('rightDateDisplay');
+                
+                if (rightTimeDisplay) rightTimeDisplay.textContent = rightTime;
+                if (rightDateDisplay) rightDateDisplay.textContent = rightDate;
             } else {
                 // Update main clock
                 const mainConfig = this.clockConfigs.main || { timezone: 'local', format24h: this.is24HourFormat };
                 const timeStr = this.formatTime(now, mainConfig.format24h, mainConfig.timezone);
                 const dateStr = this.formatDate(now, mainConfig.timezone);
-                document.getElementById('timeDisplay').textContent = timeStr;
-                document.getElementById('dateDisplay').textContent = dateStr;
+                const timeDisplay = document.getElementById('timeDisplay');
+                const dateDisplay = document.getElementById('dateDisplay');
+                
+                if (timeDisplay) timeDisplay.textContent = timeStr;
+                if (dateDisplay) dateDisplay.textContent = dateStr;
             }
         }
         
@@ -982,22 +1021,29 @@ class DigitalClockApp {
     
     // Settings persistence
     saveSettings() {
-        const settings = {
-            currentMode: this.currentMode,
-            is24HourFormat: this.is24HourFormat,
-            isMuted: this.isMuted,
-            dualClockMode: this.dualClockMode,
-            clockConfigs: this.clockConfigs
-        };
-        
-        localStorage.setItem('digitalClockAppSettings', JSON.stringify(settings));
+        try {
+            const settings = {
+                currentMode: this.currentMode,
+                is24HourFormat: this.is24HourFormat,
+                isMuted: this.isMuted,
+                dualClockMode: this.dualClockMode,
+                clockConfigs: this.clockConfigs
+            };
+            
+            localStorage.setItem('digitalClockAppSettings', JSON.stringify(settings));
+            console.log('Settings saved successfully');
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+        }
     }
     
     loadSettings() {
         try {
+            console.log('Loading settings...');
             const saved = localStorage.getItem('digitalClockAppSettings');
             if (saved) {
                 const settings = JSON.parse(saved);
+                console.log('Settings loaded:', settings);
                 
                 this.currentMode = settings.currentMode || 'clock';
                 this.is24HourFormat = settings.is24HourFormat || false;
@@ -1037,17 +1083,49 @@ class DigitalClockApp {
                             this.updateTimezoneButtonText('right', this.clockConfigs.right.timezone);
                         }
                     }
+                    console.log('Settings applied to UI');
                 }, 100);
+            } else {
+                console.log('No saved settings found, using defaults');
             }
         } catch (e) {
-            console.log('Error loading settings:', e);
+            console.error('Error loading settings:', e);
         }
     }
 }
 
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new DigitalClockApp();
+    console.log('DOM loaded, initializing Digital Clock App...');
+    try {
+        window.digitalClockApp = new DigitalClockApp();
+        console.log('Digital Clock App instance created successfully');
+        
+        // Test function to verify everything is working
+        window.testDigitalClock = () => {
+            console.log('=== Digital Clock App Test ===');
+            console.log('App instance:', window.digitalClockApp);
+            console.log('Current mode:', window.digitalClockApp.currentMode);
+            console.log('24H format:', window.digitalClockApp.is24HourFormat);
+            console.log('Muted:', window.digitalClockApp.isMuted);
+            console.log('Dual mode:', window.digitalClockApp.dualClockMode);
+            console.log('Clock configs:', window.digitalClockApp.clockConfigs);
+            console.log('localStorage available:', typeof localStorage !== 'undefined');
+            console.log('Audio elements:', {
+                clickSound: document.getElementById('clickSound'),
+                alarmSound: document.getElementById('alarmSound')
+            });
+            console.log('=== Test Complete ===');
+        };
+        
+        // Run test after a short delay
+        setTimeout(() => {
+            window.testDigitalClock();
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Failed to initialize Digital Clock App:', error);
+    }
 });
 
 // Handle fullscreen change events
