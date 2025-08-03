@@ -60,6 +60,13 @@
 - ✅ **Converter text**: Applied grey color to converter mode text
 - ✅ **Visual hierarchy**: Improved contrast and readability throughout
 
+#### **Timer Input Experience**
+- ✅ **Placeholder system**: Timer preset buttons now set placeholders instead of actual values
+- ✅ **Editable fields**: Input fields remain fully editable after pressing preset buttons
+- ✅ **User input priority**: User-typed values take complete priority over preset placeholders
+- ✅ **Zero-second timers**: Timer now properly handles "00:00:00" as valid 0-second duration
+- ✅ **Clear functionality**: Clear button resets both input values and placeholders to default state
+
 #### **Responsive Design**
 - ✅ **Landscape scrolling**: Added scrolling capability for timer and stopwatch modes
 - ✅ **Navigation alignment**: Left-aligned in portrait, centered in landscape
@@ -73,6 +80,12 @@
 - ✅ **State management**: Enhanced clock configuration management
 - ✅ **Settings persistence**: Improved localStorage handling for user preferences
 - ✅ **Error handling**: Added null checks and error prevention
+
+#### **Timer Logic Improvements**
+- ✅ **Value vs placeholder logic**: Implemented proper distinction between input values and placeholder text
+- ✅ **Input validation**: Enhanced timer input handling to prioritize user input over preset values
+- ✅ **Default behavior**: Removed automatic 1-minute fallback when timer fields show valid "00" values
+- ✅ **State management**: Improved timer state handling for better user experience
 
 #### **Performance**
 - ✅ **Optimized updates**: Reduced unnecessary DOM manipulations
@@ -95,6 +108,10 @@
 - ✅ **Milliseconds display**: Fixed timer milliseconds showing "00ms" instead of "000ms"
 - ✅ **Lap functionality**: Complete removal and re-implementation of lap features
 - ✅ **Mute functionality**: Fixed mute button not properly disabling all sounds
+- ✅ **Preset button behavior**: Fixed preset buttons setting actual values instead of placeholders
+- ✅ **Timer input priority**: User input now takes priority over preset placeholder values
+- ✅ **Timer default behavior**: Removed automatic 1-minute default when fields show "00"
+- ✅ **Clear button functionality**: Clear button properly resets both values and placeholders to "00"
 
 ### 📱 **Mobile Enhancements**
 
@@ -156,18 +173,21 @@
 2. **Colon Blinking**: Implemented and then removed based on user feedback
 3. **Navigation Auto-Hide**: Added to reduce UI clutter while maintaining accessibility
 4. **Date Format**: Enhanced to include day of week for better information display
+5. **Timer Input System**: Implemented placeholder-based preset system for better user control and editing flexibility
 
 ### **Technical Challenges Solved**
 1. **Event Delegation**: Solved mobile touch issues with dynamic elements
 2. **State Management**: Improved clock configuration handling across modes
 3. **Responsive Design**: Ensured consistent behavior across all device orientations
 4. **Performance**: Optimized update intervals and DOM manipulations
+5. **Timer Input Logic**: Solved complex interaction between user input, preset values, and placeholder text
 
 ### **User Experience Improvements**
 1. **Visual Hierarchy**: Better color contrast and information organization
 2. **Accessibility**: Improved touch targets and interaction feedback
 3. **Consistency**: Unified behavior across all modes and orientations
 4. **Professional Appearance**: Clean, modern interface design
+5. **Timer Usability**: Enhanced timer input experience with intuitive preset and editing capabilities
 
 ---
 
