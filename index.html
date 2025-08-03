@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Digital Clock App - Minimalist clock, timer, and stopwatch">
+    <title>Digital Clock App</title>
+    <link rel="icon" type="image/png" href="./logo.png">
+    <link rel="shortcut icon" type="image/png" href="./logo.png">
+    <link rel="apple-touch-icon" href="./logo.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+    <!-- Main Content Container -->
+    <main id="mainContent" class="main-content">
+        <!-- Clock Mode -->
+        <div id="clockMode" class="mode-container active">
+            <div class="clock-container">
+                <div class="time-display" id="timeDisplay">12:00AM</div>
+                <div class="date-display" id="dateDisplay">JANUARY/01/24</div>
+                <div class="clock-controls">
+                    <button id="localBtn" class="control-btn">TIMEZONE</button>
+                    <button id="dualClockBtn" class="control-btn">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dual Clock Mode -->
+        <div id="dualClockMode" class="mode-container dual-clock-container">
+            <div class="clock-half" id="leftClock">
+                <div class="time-display" id="leftTimeDisplay">12:00AM</div>
+                <div class="date-display" id="leftDateDisplay">JANUARY/01/24</div>
+                <div class="clock-controls">
+                    <button class="control-btn local-btn">TIMEZONE</button>
+                    <button class="control-btn close-btn">X</button>
+                </div>
+            </div>
+            <div class="clock-half" id="rightClock">
+                <div class="time-display" id="rightTimeDisplay">12:00AM</div>
+                <div class="date-display" id="rightDateDisplay">JANUARY/01/24</div>
+                <div class="clock-controls">
+                    <button class="control-btn local-btn">TIMEZONE</button>
+                    <button class="control-btn close-btn">X</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Converter Mode -->
+        <div id="converterMode" class="mode-container">
+            <div class="converter-display">
+                <h2>TIME ZONE CONVERTER TOOL COMING SOON</h2>
+            </div>
+        </div>
+
+        <!-- Timer Mode -->
+        <div id="timerMode" class="mode-container">
+            <div class="clock-container">
+                <div class="timer-display" id="timerDisplay">
+                    <input type="text" class="timer-input" id="hoursInput" value="00" maxlength="2">
+                    <span class="timer-separator">:</span>
+                    <input type="text" class="timer-input" id="minutesInput" value="00" maxlength="2">
+                    <span class="timer-separator">:</span>
+                    <input type="text" class="timer-input" id="secondsInput" value="00" maxlength="2">
+                </div>
+                <div class="milliseconds-display" id="timerMilliseconds">000ms</div>
+                
+                <div class="timer-controls">
+                    <div class="action-buttons">
+                        <button id="timerStartBtn" class="action-btn">START</button>
+                        <button id="timerResetBtn" class="action-btn">CLEAR</button>
+                    </div>
+                    
+                    <div class="preset-buttons">
+                        <button class="preset-btn" data-time="3600000">1H</button>
+                        <button class="preset-btn" data-time="1800000">30M</button>
+                        <button class="preset-btn" data-time="900000">15M</button>
+                        <button class="preset-btn" data-time="300000">5M</button>
+                        <button class="preset-btn" data-time="60000">60S</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stopwatch Mode -->
+        <div id="stopwatchMode" class="mode-container">
+            <div class="clock-container">
+                <div class="stopwatch-display" id="stopwatchDisplay">00:00:00</div>
+                <div class="milliseconds-display" id="stopwatchMilliseconds">000ms</div>
+                
+                <div class="stopwatch-controls">
+                    <div class="action-buttons">
+                        <button id="stopwatchStartBtn" class="action-btn">START</button>
+                        <button id="stopwatchLapBtn" class="action-btn">LAP</button>
+                        <button id="stopwatchResetBtn" class="action-btn">RESET</button>
+                    </div>
+                    
+                    <div id="lapList" class="lap-list"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Timezone Modal -->
+    <div id="timezoneModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Timezone</h3>
+                <button class="close-modal">×</button>
+            </div>
+            <div class="timezone-list" id="timezoneList"></div>
+        </div>
+    </div>
+
+    <!-- Banner -->
+    <div id="banner" class="banner">
+        <span>DIGITALCLOCKAPP.COM</span>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav id="navigationMenu" class="navigation-menu">
+        <button id="clockBtn" class="nav-btn active">CLOCK</button>
+        <button id="converterBtn" class="nav-btn">CONVERTER</button>
+        <button id="timerBtn" class="nav-btn">TIMER</button>
+        <button id="stopwatchBtn" class="nav-btn">STOPWATCH</button>
+        <span class="nav-divider">|</span>
+        <button id="formatToggle" class="nav-btn">24H</button>
+        <button id="muteToggle" class="nav-btn">MUTE</button>
+        <button id="fullscreenBtn" class="nav-btn">FULLSCREEN</button>
+        <button id="shareBtn" class="nav-btn">SHARE</button>
+    </nav>
+
+
+
+    <!-- Audio Elements -->
+    <audio id="clickSound" preload="auto">
+        <source src="./click.wav" type="audio/wav">
+    </audio>
+    <audio id="alarmSound" preload="auto">
+        <source src="./alarm.wav" type="audio/wav">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
