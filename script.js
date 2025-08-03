@@ -9,12 +9,7 @@ class DigitalClockApp {
         this.dualClockMode = false;
         this.colonBlink = true;
         
-        // Activity tracking for auto-hide
-        this.activityTimer = null;
-        this.bannerHideTimer = null;
-        this.menuHideTimer = null;
-        this.BANNER_HIDE_DELAY = 5000; // 5 seconds
-        this.MENU_HIDE_DELAY = 3000;   // 3 seconds
+
         
         // Timer state
         this.timerState = {
@@ -74,23 +69,139 @@ class DigitalClockApp {
     init() {
         this.loadSettings();
         this.setupEventListeners();
-        this.setupActivityTracking();
         this.createTimezoneList();
         this.startClockUpdate();
-        this.startActivityTimer();
+        this.initBanner();
+        this.initNavigationAutoHide();
         
         // Initialize audio
         this.clickSound = document.getElementById('clickSound');
         this.alarmSound = document.getElementById('alarmSound');
+        
+        // Ensure mute state is properly set
+        if (this.isMuted) {
+            const muteBtn = document.getElementById('muteToggle');
+            if (muteBtn) muteBtn.classList.add('active');
+        }
+    }
+    
+    initBanner() {
+        const banner = document.getElementById('banner');
+        if (banner) {
+            // Hide banner after 10 seconds
+            setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 10000);
+            
+            // Show banner on user activity
+            this.setupBannerActivityListener();
+        }
+    }
+    
+    setupBannerActivityListener() {
+        const banner = document.getElementById('banner');
+        let activityTimeout;
+        
+        // Events to track for user activity
+        const activityEvents = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart', 'click'];
+        
+        const showBanner = () => {
+            if (banner && banner.classList.contains('hidden')) {
+                banner.classList.remove('hidden');
+                
+                // Hide again after 10 seconds
+                setTimeout(() => {
+                    banner.classList.add('hidden');
+                }, 10000);
+            }
+        };
+        
+        const handleActivity = () => {
+            // Clear existing timeout
+            if (activityTimeout) {
+                clearTimeout(activityTimeout);
+            }
+            
+            // Show banner immediately on activity
+            showBanner();
+            
+            // Set new timeout to hide banner after 10 seconds of inactivity
+            activityTimeout = setTimeout(() => {
+                if (banner && !banner.classList.contains('hidden')) {
+                    banner.classList.add('hidden');
+                }
+            }, 10000);
+        };
+        
+        // Add event listeners for user activity
+        activityEvents.forEach(event => {
+            document.addEventListener(event, handleActivity, { passive: true });
+        });
+    }
+    
+    initNavigationAutoHide() {
+        const navigation = document.getElementById('navigationMenu');
+        if (navigation) {
+            // Hide navigation after 20 seconds
+            setTimeout(() => {
+                navigation.classList.add('hidden');
+            }, 20000);
+            
+            // Show navigation on user activity
+            this.setupNavigationActivityListener();
+        }
+    }
+    
+    setupNavigationActivityListener() {
+        const navigation = document.getElementById('navigationMenu');
+        let activityTimeout;
+        
+        // Events to track for user activity
+        const activityEvents = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart', 'click'];
+        
+        const showNavigation = () => {
+            if (navigation && navigation.classList.contains('hidden')) {
+                navigation.classList.remove('hidden');
+                
+                // Hide again after 20 seconds
+                setTimeout(() => {
+                    navigation.classList.add('hidden');
+                }, 20000);
+            }
+        };
+        
+        const handleActivity = () => {
+            // Clear existing timeout
+            if (activityTimeout) {
+                clearTimeout(activityTimeout);
+            }
+            
+            // Show navigation immediately on activity
+            showNavigation();
+            
+            // Set new timeout to hide navigation after 20 seconds of inactivity
+            activityTimeout = setTimeout(() => {
+                if (navigation && !navigation.classList.contains('hidden')) {
+                    navigation.classList.add('hidden');
+                }
+            }, 20000);
+        };
+        
+        // Add event listeners for user activity
+        activityEvents.forEach(event => {
+            document.addEventListener(event, handleActivity, { passive: true });
+        });
     }
     
     setupEventListeners() {
         // Navigation buttons - with null checks
         const clockBtn = document.getElementById('clockBtn');
+        const converterBtn = document.getElementById('converterBtn');
         const timerBtn = document.getElementById('timerBtn');
         const stopwatchBtn = document.getElementById('stopwatchBtn');
         
         if (clockBtn) clockBtn.addEventListener('click', () => this.switchMode('clock'));
+        if (converterBtn) converterBtn.addEventListener('click', () => this.switchMode('converter'));
         if (timerBtn) timerBtn.addEventListener('click', () => this.switchMode('timer'));
         if (stopwatchBtn) stopwatchBtn.addEventListener('click', () => this.switchMode('stopwatch'));
         
@@ -98,38 +209,79 @@ class DigitalClockApp {
         const formatToggle = document.getElementById('formatToggle');
         const muteToggle = document.getElementById('muteToggle');
         const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const hideMenuBtn = document.getElementById('hideMenuBtn');
-        const showMenuBtn = document.getElementById('showMenuBtn');
+        const shareBtn = document.getElementById('shareBtn');
         
         if (formatToggle) formatToggle.addEventListener('click', () => this.toggleTimeFormat());
         if (muteToggle) muteToggle.addEventListener('click', () => this.toggleMute());
         if (fullscreenBtn) fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
-        if (hideMenuBtn) hideMenuBtn.addEventListener('click', () => this.hideMenu());
-        if (showMenuBtn) showMenuBtn.addEventListener('click', () => this.showMenu());
+        if (shareBtn) shareBtn.addEventListener('click', () => this.shareApp());
         
         // Clock mode buttons
         document.getElementById('localBtn').addEventListener('click', () => this.openTimezoneModal('main'));
         document.getElementById('dualClockBtn').addEventListener('click', () => this.enterDualClockMode());
         
         // Dual clock mode buttons
-        document.querySelectorAll('.local-btn').forEach((btn, index) => {
-            btn.addEventListener('click', () => this.openTimezoneModal(index === 0 ? 'left' : 'right'));
+        // Use event delegation for timezone buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('local-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const localBtns = document.querySelectorAll('.local-btn');
+                const index = Array.from(localBtns).indexOf(e.target);
+                this.openTimezoneModal(index === 0 ? 'left' : 'right');
+            }
         });
-        document.querySelectorAll('.close-btn').forEach((btn, index) => {
-            btn.addEventListener('click', () => this.exitDualClockMode(index === 0 ? 'left' : 'right'));
+        
+        document.addEventListener('touchend', (e) => {
+            if (e.target.classList.contains('local-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const localBtns = document.querySelectorAll('.local-btn');
+                const index = Array.from(localBtns).indexOf(e.target);
+                this.openTimezoneModal(index === 0 ? 'left' : 'right');
+            }
+        });
+        // Use event delegation for better mobile support
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('close-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const closeBtns = document.querySelectorAll('.close-btn');
+                const index = Array.from(closeBtns).indexOf(e.target);
+                this.exitDualClockMode(index === 0 ? 'left' : 'right');
+            }
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            if (e.target.classList.contains('close-btn')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const closeBtns = document.querySelectorAll('.close-btn');
+                const index = Array.from(closeBtns).indexOf(e.target);
+                this.exitDualClockMode(index === 0 ? 'left' : 'right');
+            }
         });
         
         // Timer controls
         document.getElementById('timerStartBtn').addEventListener('click', () => this.toggleTimer());
         document.getElementById('timerResetBtn').addEventListener('click', () => this.resetTimer());
         
-        // Timer inputs
-        document.querySelectorAll('.increment-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.incrementTimerValue(e.target.dataset.target));
+        // Preset buttons
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.setPresetTime(parseInt(e.target.dataset.time)));
         });
-        document.querySelectorAll('.decrement-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.decrementTimerValue(e.target.dataset.target));
+        
+        // Timer input fields
+        document.getElementById('hoursInput').addEventListener('input', (e) => this.validateTimerInput(e, 23));
+        document.getElementById('minutesInput').addEventListener('input', (e) => this.validateTimerInput(e, 59));
+        document.getElementById('secondsInput').addEventListener('input', (e) => this.validateTimerInput(e, 59));
+        
+        // Auto-focus next input on max length
+        document.querySelectorAll('.timer-input').forEach(input => {
+            input.addEventListener('keyup', (e) => this.handleTimerInputNavigation(e));
         });
+        
+
         
         // Stopwatch controls
         document.getElementById('stopwatchStartBtn').addEventListener('click', () => this.toggleStopwatch());
@@ -142,71 +294,18 @@ class DigitalClockApp {
             if (e.target.id === 'timezoneModal') this.closeTimezoneModal();
         });
         
-        // Prevent form submission on number inputs
-        document.querySelectorAll('.time-input').forEach(input => {
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') e.preventDefault();
-            });
-            input.addEventListener('input', () => this.validateTimerInput(input));
-        });
+
     }
     
-    setupActivityTracking() {
-        const events = ['mousemove', 'touchstart', 'keydown', 'click'];
-        events.forEach(event => {
-            document.addEventListener(event, () => this.resetActivityTimer());
-        });
-    }
+
     
-    resetActivityTimer() {
-        // Clear existing timers
-        clearTimeout(this.bannerHideTimer);
-        clearTimeout(this.menuHideTimer);
-        
-        // Show banner and menu
-        this.showBanner();
-        this.showMenu();
-        
-        // Set new hide timers
-        this.bannerHideTimer = setTimeout(() => {
-            this.hideBanner();
-        }, this.BANNER_HIDE_DELAY);
-        
-        this.menuHideTimer = setTimeout(() => {
-            this.hideMenu();
-        }, this.MENU_HIDE_DELAY);
-    }
-    
-    startActivityTimer() {
-        this.resetActivityTimer();
-    }
-    
-    showBanner() {
-        const banner = document.getElementById('headerBanner');
-        banner.classList.remove('hidden');
-    }
-    
-    hideBanner() {
-        const banner = document.getElementById('headerBanner');
-        banner.classList.add('hidden');
-    }
-    
-    showMenu() {
-        const menu = document.getElementById('navigationMenu');
-        const showBtn = document.getElementById('showMenuBtn');
-        menu.classList.remove('hidden');
-        showBtn.classList.remove('visible');
-    }
-    
-    hideMenu() {
-        const menu = document.getElementById('navigationMenu');
-        const showBtn = document.getElementById('showMenuBtn');
-        menu.classList.add('hidden');
-        showBtn.classList.add('visible');
-    }
+
     
     playSound(soundType) {
-        if (this.isMuted) return;
+        // Double-check mute state
+        if (this.isMuted === true) {
+            return;
+        }
         
         try {
             const sound = soundType === 'click' ? this.clickSound : this.alarmSound;
@@ -240,6 +339,9 @@ class DigitalClockApp {
                 document.getElementById('clockMode').classList.add('active');
             }
             document.getElementById('clockBtn').classList.add('active');
+        } else if (mode === 'converter') {
+            document.getElementById('converterMode').classList.add('active');
+            document.getElementById('converterBtn').classList.add('active');
         } else if (mode === 'timer') {
             document.getElementById('timerMode').classList.add('active');
             document.getElementById('timerBtn').classList.add('active');
@@ -255,17 +357,44 @@ class DigitalClockApp {
     toggleTimeFormat() {
         this.playSound('click');
         this.is24HourFormat = !this.is24HourFormat;
+        
+        // Update main clock configuration
+        this.clockConfigs.main = this.clockConfigs.main || {};
+        this.clockConfigs.main.format24h = this.is24HourFormat;
+        
+        // Update dual clock configurations if in dual mode
+        if (this.dualClockMode) {
+            this.clockConfigs.left = this.clockConfigs.left || {};
+            this.clockConfigs.right = this.clockConfigs.right || {};
+            this.clockConfigs.left.format24h = this.is24HourFormat;
+            this.clockConfigs.right.format24h = this.is24HourFormat;
+        }
+        
         const btn = document.getElementById('formatToggle');
-        btn.textContent = this.is24HourFormat ? '12H' : '24H';
+        btn.classList.toggle('active');
         this.saveSettings();
+        
+        // Immediately update the clock display
+        this.updateClock();
     }
     
     toggleMute() {
-        this.playSound('click');
         this.isMuted = !this.isMuted;
         const btn = document.getElementById('muteToggle');
-        btn.textContent = this.isMuted ? 'UNMUTE' : 'MUTE';
+        btn.classList.toggle('active');
         this.saveSettings();
+        
+        // Immediately stop any currently playing sounds when muting
+        if (this.isMuted) {
+            if (this.clickSound) {
+                this.clickSound.pause();
+                this.clickSound.currentTime = 0;
+            }
+            if (this.alarmSound) {
+                this.alarmSound.pause();
+                this.alarmSound.currentTime = 0;
+            }
+        }
     }
     
     toggleFullscreen() {
@@ -275,14 +404,41 @@ class DigitalClockApp {
             document.documentElement.requestFullscreen().then(() => {
                 this.isFullscreen = true;
                 document.body.classList.add('fullscreen-mode');
-                document.getElementById('fullscreenBtn').textContent = 'EXIT FS';
+                document.getElementById('fullscreenBtn').classList.add('active');
             }).catch(e => console.log('Fullscreen failed:', e));
         } else {
             document.exitFullscreen().then(() => {
                 this.isFullscreen = false;
                 document.body.classList.remove('fullscreen-mode');
-                document.getElementById('fullscreenBtn').textContent = 'FULLSCREEN';
+                document.getElementById('fullscreenBtn').classList.remove('active');
             }).catch(e => console.log('Exit fullscreen failed:', e));
+        }
+    }
+    
+    shareApp() {
+        this.playSound('click');
+        
+        const currentTime = new Date().toLocaleTimeString();
+        const shareText = `Check out this Digital Clock App! Current time: ${currentTime}\n\nVisit: DIGITALCLOCKAPP.COM`;
+        
+        if (navigator.share) {
+            // Use native Web Share API if available
+            navigator.share({
+                title: 'Digital Clock App',
+                text: shareText,
+                url: window.location.href
+            }).catch(e => console.log('Share failed:', e));
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(shareText).then(() => {
+                // Show a brief visual feedback
+                const shareBtn = document.getElementById('shareBtn');
+                const originalText = shareBtn.textContent;
+                shareBtn.textContent = 'COPIED!';
+                setTimeout(() => {
+                    shareBtn.textContent = originalText;
+                }, 2000);
+            }).catch(e => console.log('Copy failed:', e));
         }
     }
     
@@ -323,14 +479,16 @@ class DigitalClockApp {
             }
         }
         
-        const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
-                       'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+                       'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
         
         const month = months[targetDate.getMonth()];
         const day = targetDate.getDate().toString().padStart(2, '0');
         const year = targetDate.getFullYear().toString().slice(-2);
+        const dayOfWeek = days[targetDate.getDay()];
         
-        return `${month}/${day}/${year}`;
+        return `${month}/${day}/${year} ${dayOfWeek}`;
     }
     
     updateClock() {
@@ -351,8 +509,9 @@ class DigitalClockApp {
                 document.getElementById('rightDateDisplay').textContent = rightDate;
             } else {
                 // Update main clock
-                const timeStr = this.formatTime(now, this.is24HourFormat);
-                const dateStr = this.formatDate(now);
+                const mainConfig = this.clockConfigs.main || { timezone: 'local', format24h: this.is24HourFormat };
+                const timeStr = this.formatTime(now, mainConfig.format24h, mainConfig.timezone);
+                const dateStr = this.formatDate(now, mainConfig.timezone);
                 document.getElementById('timeDisplay').textContent = timeStr;
                 document.getElementById('dateDisplay').textContent = dateStr;
             }
@@ -375,33 +534,9 @@ class DigitalClockApp {
             this.stopwatchState.elapsed = Date.now() - this.stopwatchState.startTime;
             this.updateStopwatchDisplay();
         }
-        
-        // Handle colon blinking
-        this.updateColonBlink();
     }
     
-    updateColonBlink() {
-        const shouldBlink = (this.currentMode === 'timer' && this.timerState.running) ||
-                           (this.currentMode === 'stopwatch' && this.stopwatchState.running);
-        
-        if (shouldBlink) {
-            this.colonBlink = !this.colonBlink;
-            const displays = document.querySelectorAll('.timer-display, .stopwatch-display');
-            displays.forEach(display => {
-                if (this.colonBlink) {
-                    display.classList.add('blink-colon');
-                } else {
-                    display.classList.remove('blink-colon');
-                }
-            });
-        } else {
-            // Remove blinking when not needed
-            const displays = document.querySelectorAll('.timer-display, .stopwatch-display');
-            displays.forEach(display => {
-                display.classList.remove('blink-colon');
-            });
-        }
-    }
+
     
     startClockUpdate() {
         this.updateClock();
@@ -413,26 +548,50 @@ class DigitalClockApp {
         this.playSound('click');
         
         if (!this.timerState.running) {
-            // Start timer
-            const hours = parseInt(document.getElementById('hoursInput').value) || 0;
-            const minutes = parseInt(document.getElementById('minutesInput').value) || 0;
-            const seconds = parseInt(document.getElementById('secondsInput').value) || 0;
+            // If timer was completed and user clicks STOP, reset the button and stop alarm
+            if (this.timerState.completed) {
+                this.stopAlarm();
+                this.resetTimerButton();
+                return;
+            }
             
-            const totalMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
+            // Get values from input fields (only if they exist)
+            const hoursInput = document.getElementById('hoursInput');
+            const minutesInput = document.getElementById('minutesInput');
+            const secondsInput = document.getElementById('secondsInput');
+            
+            let hours = 0, minutes = 0, seconds = 0;
+            
+            if (hoursInput && minutesInput && secondsInput) {
+                hours = parseInt(hoursInput.value) || 0;
+                minutes = parseInt(minutesInput.value) || 0;
+                seconds = parseInt(secondsInput.value) || 0;
+            } else {
+                // Fallback to default 1 minute if inputs don't exist
+                minutes = 1;
+            }
+            
+            const totalMs = (hours * 3600000) + (minutes * 60000) + (seconds * 1000);
             
             if (totalMs > 0) {
                 this.timerState.duration = totalMs;
                 this.timerState.remaining = totalMs;
                 this.timerState.startTime = Date.now();
                 this.timerState.running = true;
+                this.timerState.completed = false; // Reset completed state
                 
+                // Switch to running state
                 document.getElementById('timerStartBtn').textContent = 'STOP';
+                document.getElementById('timerStartBtn').classList.add('active');
+                
                 this.updateTimerDisplay();
             }
         } else {
-            // Stop timer
+            // Stop timer (user stopped before completion)
             this.timerState.running = false;
+            this.timerState.completed = false; // Reset completed state
             document.getElementById('timerStartBtn').textContent = 'START';
+            document.getElementById('timerStartBtn').classList.remove('active');
         }
     }
     
@@ -440,70 +599,151 @@ class DigitalClockApp {
         this.playSound('click');
         this.timerState.running = false;
         this.timerState.remaining = 0;
+        this.timerState.duration = 0;
+        this.timerState.completed = false; // Reset completed state
         
+        // Reset to setup state
         document.getElementById('timerStartBtn').textContent = 'START';
-        document.getElementById('timerDisplay').textContent = '00:00:00';
+        document.getElementById('timerStartBtn').classList.remove('active');
+        
+        // Only update input fields if they exist (timer mode is active)
+        const hoursInput = document.getElementById('hoursInput');
+        const minutesInput = document.getElementById('minutesInput');
+        const secondsInput = document.getElementById('secondsInput');
+        
+        if (hoursInput) hoursInput.value = '00';
+        if (minutesInput) minutesInput.value = '00';
+        if (secondsInput) secondsInput.value = '00';
+        
         document.getElementById('timerMilliseconds').textContent = '000ms';
     }
     
     updateTimerDisplay() {
-        const totalSeconds = Math.floor(this.timerState.remaining / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        const milliseconds = this.timerState.remaining % 1000;
-        
-        const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        const msStr = `${Math.floor(milliseconds).toString().padStart(3, '0')}ms`;
-        
-        document.getElementById('timerDisplay').textContent = timeStr;
-        document.getElementById('timerMilliseconds').textContent = msStr;
+        if (this.timerState.running) {
+            const elapsed = Date.now() - this.timerState.startTime;
+            this.timerState.remaining = Math.max(0, this.timerState.duration - elapsed);
+            
+            if (this.timerState.remaining <= 0) {
+                this.timerCompleted();
+                return;
+            }
+            
+            const totalSeconds = Math.floor(this.timerState.remaining / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            const milliseconds = Math.floor((this.timerState.remaining % 1000) / 10);
+            
+            // Update input fields if they exist (timer mode is active)
+            const hoursInput = document.getElementById('hoursInput');
+            const minutesInput = document.getElementById('minutesInput');
+            const secondsInput = document.getElementById('secondsInput');
+            const timerMilliseconds = document.getElementById('timerMilliseconds');
+            
+            if (hoursInput && minutesInput && secondsInput) {
+                hoursInput.value = hours.toString().padStart(2, '0');
+                minutesInput.value = minutes.toString().padStart(2, '0');
+                secondsInput.value = seconds.toString().padStart(2, '0');
+            }
+            
+            if (timerMilliseconds) {
+                timerMilliseconds.textContent = `${milliseconds.toString().padStart(3, '0')}ms`;
+            }
+            
+
+            
+            requestAnimationFrame(() => this.updateTimerDisplay());
+        }
     }
     
     timerCompleted() {
         this.timerState.running = false;
-        document.getElementById('timerStartBtn').textContent = 'START';
-        document.getElementById('timerDisplay').textContent = '00:00:00';
+        this.timerState.completed = true; // Mark as completed
+        
+        // Keep button as "STOP" - don't change to "START" yet
+        // Button will change to "START" when alarm finishes or user clicks
+        
+        // Only update input fields if they exist (timer mode is active)
+        const hoursInput = document.getElementById('hoursInput');
+        const minutesInput = document.getElementById('minutesInput');
+        const secondsInput = document.getElementById('secondsInput');
+        
+        if (hoursInput) hoursInput.value = '00';
+        if (minutesInput) minutesInput.value = '00';
+        if (secondsInput) secondsInput.value = '00';
+        
         document.getElementById('timerMilliseconds').textContent = '000ms';
+        
+        // Play alarm and set up auto-reset when sound finishes
         this.playSound('alarm');
+        
+        // Auto-reset button to START when alarm finishes
+        if (this.alarmSound) {
+            this.alarmSound.addEventListener('ended', () => {
+                this.resetTimerButton();
+            }, { once: true }); // Only trigger once
+        }
     }
     
-    incrementTimerValue(target) {
+    resetTimerButton() {
+        if (this.timerState.completed) {
+            document.getElementById('timerStartBtn').textContent = 'START';
+            document.getElementById('timerStartBtn').classList.remove('active');
+            this.timerState.completed = false;
+        }
+    }
+    
+    stopAlarm() {
+        if (this.alarmSound) {
+            this.alarmSound.pause();
+            this.alarmSound.currentTime = 0;
+        }
+    }
+    
+    setPresetTime(milliseconds) {
         this.playSound('click');
-        const input = document.getElementById(target + 'Input');
-        const currentValue = parseInt(input.value) || 0;
-        const maxValue = target === 'hours' ? 23 : 59;
+        this.timerState.duration = milliseconds;
         
-        if (currentValue < maxValue) {
-            input.value = currentValue + 1;
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        
+        // Only update input fields if they exist (timer mode is active)
+        const hoursInput = document.getElementById('hoursInput');
+        const minutesInput = document.getElementById('minutesInput');
+        const secondsInput = document.getElementById('secondsInput');
+        
+        if (hoursInput) hoursInput.value = hours.toString().padStart(2, '0');
+        if (minutesInput) minutesInput.value = minutes.toString().padStart(2, '0');
+        if (secondsInput) secondsInput.value = seconds.toString().padStart(2, '0');
+    }
+    
+    validateTimerInput(event, maxValue) {
+        let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
+        let numValue = parseInt(value) || 0;
+        
+        if (numValue > maxValue) {
+            numValue = maxValue;
+        }
+        
+        event.target.value = numValue.toString().padStart(2, '0');
+    }
+    
+    handleTimerInputNavigation(event) {
+        const inputs = ['hoursInput', 'minutesInput', 'secondsInput'];
+        const currentIndex = inputs.indexOf(event.target.id);
+        
+        if (event.target.value.length === 2 && currentIndex < inputs.length - 1) {
+            document.getElementById(inputs[currentIndex + 1]).focus();
         }
     }
     
-    decrementTimerValue(target) {
-        this.playSound('click');
-        const input = document.getElementById(target + 'Input');
-        const currentValue = parseInt(input.value) || 0;
-        
-        if (currentValue > 0) {
-            input.value = currentValue - 1;
-        }
-    }
+
     
-    validateTimerInput(input) {
-        let value = parseInt(input.value);
-        const max = input.max ? parseInt(input.max) : 59;
-        
-        if (isNaN(value) || value < 0) {
-            input.value = 0;
-        } else if (value > max) {
-            input.value = max;
-        }
-        
-        // Ensure two-digit format for display
-        if (input.value.length === 1) {
-            input.value = '0' + input.value;
-        }
-    }
+
+    
+
     
     // Stopwatch functionality
     toggleStopwatch() {
@@ -531,10 +771,11 @@ class DigitalClockApp {
         document.getElementById('stopwatchDisplay').textContent = '00:00:00';
         document.getElementById('stopwatchMilliseconds').textContent = '000ms';
         
-        // Clear lap list
+        // Clear and hide lap list
         const lapList = document.getElementById('lapList');
         if (lapList) {
             lapList.innerHTML = '';
+            lapList.style.display = 'none';
         }
     }
     
@@ -559,9 +800,20 @@ class DigitalClockApp {
                 <span>${timeStr}</span>
             `;
             
-            document.getElementById('lapList').appendChild(lapItem);
+            const lapList = document.getElementById('lapList');
+            lapList.appendChild(lapItem);
+            
+            // Show lap list when first lap is added
+            if (this.stopwatchState.laps.length === 1) {
+                lapList.style.display = 'block';
+            }
+            
+            // Scroll to the bottom to show the latest lap
+            lapList.scrollTop = lapList.scrollHeight;
         }
     }
+    
+
     
     updateStopwatchDisplay() {
         const timeStr = this.formatStopwatchTime(this.stopwatchState.elapsed);
@@ -587,17 +839,69 @@ class DigitalClockApp {
     enterDualClockMode() {
         this.playSound('click');
         this.dualClockMode = true;
+        
+        // Transfer main clock settings to left clock
+        this.clockConfigs.left = {
+            timezone: this.clockConfigs.main?.timezone || 'local',
+            format24h: this.clockConfigs.main?.format24h || this.is24HourFormat
+        };
+        
+        // Set right clock to use current global 24H setting
+        this.clockConfigs.right = {
+            timezone: 'local',
+            format24h: this.is24HourFormat
+        };
+        
+        // Update button text for both clocks
+        this.updateTimezoneButtonText('left', this.clockConfigs.left.timezone);
+        this.updateTimezoneButtonText('right', this.clockConfigs.right.timezone);
+        
         document.getElementById('clockMode').classList.remove('active');
         document.getElementById('dualClockMode').classList.add('active');
         this.saveSettings();
+        
+        // Immediately update the clock display
+        this.updateClock();
     }
     
     exitDualClockMode(side) {
         this.playSound('click');
         this.dualClockMode = false;
+        
+        // Transfer the remaining clock's settings to main clock
+        if (side === 'left') {
+            // Right clock becomes main clock
+            this.clockConfigs.main = {
+                timezone: this.clockConfigs.right.timezone,
+                format24h: this.clockConfigs.right.format24h
+            };
+        } else {
+            // Left clock becomes main clock
+            this.clockConfigs.main = {
+                timezone: this.clockConfigs.left.timezone,
+                format24h: this.clockConfigs.left.format24h
+            };
+        }
+        
+        // Update main clock button text
+        this.updateTimezoneButtonText('main', this.clockConfigs.main.timezone);
+        
+        // Update format toggle button state
+        const formatBtn = document.getElementById('formatToggle');
+        if (this.clockConfigs.main.format24h) {
+            formatBtn.classList.add('active');
+            this.is24HourFormat = true;
+        } else {
+            formatBtn.classList.remove('active');
+            this.is24HourFormat = false;
+        }
+        
         document.getElementById('dualClockMode').classList.remove('active');
         document.getElementById('clockMode').classList.add('active');
         this.saveSettings();
+        
+        // Immediately update the clock display
+        this.updateClock();
     }
     
     // Timezone modal functionality
@@ -635,15 +939,45 @@ class DigitalClockApp {
         this.playSound('click');
         
         if (this.currentTimezoneTarget === 'main') {
-            // For single clock mode - not implemented in this version
+            // For single clock mode - store in main config
+            this.clockConfigs.main = this.clockConfigs.main || {};
+            this.clockConfigs.main.timezone = timezone;
+            this.updateTimezoneButtonText('main', timezone);
         } else if (this.currentTimezoneTarget === 'left') {
             this.clockConfigs.left.timezone = timezone;
+            this.updateTimezoneButtonText('left', timezone);
         } else if (this.currentTimezoneTarget === 'right') {
             this.clockConfigs.right.timezone = timezone;
+            this.updateTimezoneButtonText('right', timezone);
         }
         
         this.closeTimezoneModal();
         this.saveSettings();
+        
+        // Immediately update the clock display
+        this.updateClock();
+    }
+    
+    updateTimezoneButtonText(target, timezone) {
+        let buttonText = 'TIMEZONE';
+        
+        if (timezone !== 'local') {
+            const tz = this.timezones.find(t => t.name === timezone);
+            if (tz) {
+                buttonText = tz.name; // e.g., "UTC -9:00"
+            }
+        }
+        
+        if (target === 'main') {
+            const mainBtn = document.getElementById('localBtn');
+            if (mainBtn) mainBtn.textContent = buttonText;
+        } else if (target === 'left') {
+            const leftBtns = document.querySelectorAll('.local-btn');
+            if (leftBtns[0]) leftBtns[0].textContent = buttonText;
+        } else if (target === 'right') {
+            const rightBtns = document.querySelectorAll('.local-btn');
+            if (rightBtns[1]) rightBtns[1].textContent = buttonText;
+        }
     }
     
     // Settings persistence
@@ -674,15 +1008,35 @@ class DigitalClockApp {
                     this.clockConfigs = settings.clockConfigs;
                 }
                 
+                // Ensure main clock config exists
+                if (!this.clockConfigs.main) {
+                    this.clockConfigs.main = { timezone: 'local', format24h: this.is24HourFormat };
+                }
+                
                 // Apply loaded settings to UI
                 setTimeout(() => {
                     this.switchMode(this.currentMode);
                     
                     const formatBtn = document.getElementById('formatToggle');
-                    formatBtn.textContent = this.is24HourFormat ? '12H' : '24H';
+                    if (this.is24HourFormat) formatBtn.classList.add('active');
+                    else formatBtn.classList.remove('active');
                     
                     const muteBtn = document.getElementById('muteToggle');
-                    muteBtn.textContent = this.isMuted ? 'UNMUTE' : 'MUTE';
+                    if (this.isMuted) muteBtn.classList.add('active');
+                    else muteBtn.classList.remove('active');
+                    
+                    // Restore timezone button text
+                    if (this.clockConfigs.main && this.clockConfigs.main.timezone) {
+                        this.updateTimezoneButtonText('main', this.clockConfigs.main.timezone);
+                    }
+                    if (this.dualClockMode) {
+                        if (this.clockConfigs.left && this.clockConfigs.left.timezone) {
+                            this.updateTimezoneButtonText('left', this.clockConfigs.left.timezone);
+                        }
+                        if (this.clockConfigs.right && this.clockConfigs.right.timezone) {
+                            this.updateTimezoneButtonText('right', this.clockConfigs.right.timezone);
+                        }
+                    }
                 }, 100);
             }
         } catch (e) {
@@ -701,7 +1055,7 @@ document.addEventListener('fullscreenchange', () => {
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     if (!document.fullscreenElement) {
         document.body.classList.remove('fullscreen-mode');
-        if (fullscreenBtn) fullscreenBtn.textContent = 'FULLSCREEN';
+        if (fullscreenBtn) fullscreenBtn.classList.remove('active');
     }
 });
 
@@ -710,7 +1064,7 @@ document.addEventListener('webkitfullscreenchange', () => {
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     if (!document.webkitFullscreenElement) {
         document.body.classList.remove('fullscreen-mode');
-        if (fullscreenBtn) fullscreenBtn.textContent = 'FULLSCREEN';
+        if (fullscreenBtn) fullscreenBtn.classList.remove('active');
     }
 });
 
@@ -718,6 +1072,6 @@ document.addEventListener('mozfullscreenchange', () => {
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     if (!document.mozFullScreenElement) {
         document.body.classList.remove('fullscreen-mode');
-        if (fullscreenBtn) fullscreenBtn.textContent = 'FULLSCREEN';
+        if (fullscreenBtn) fullscreenBtn.classList.remove('active');
     }
 });

@@ -5,6 +5,9 @@
     font-display: swap;
 }
 
+/* Font Face Declaration */
+
+
 /* Reset and Base Styles */
 * {
     margin: 0;
@@ -23,7 +26,7 @@ html, body {
 body {
     background-color: #000000;
     color: #ffffff;
-    font-family: 'Digital7', 'Consolas', monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -32,28 +35,7 @@ body {
     position: relative;
 }
 
-/* Header Banner */
-.header-banner {
-    position: fixed;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    font-family: 'Digital7', 'Consolas', monospace;
-    font-size: 2.5vw;
-    letter-spacing: 0.04em;
-    color: #a0a0a0;
-    opacity: 0.58;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 0.5rem 1rem;
-    border-radius: 0.3rem;
-    transition: opacity 0.3s ease;
-}
 
-.header-banner.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
 
 /* Main Content */
 .main-content {
@@ -80,36 +62,65 @@ body {
     display: flex;
 }
 
+/* Compensate for timer mode's extra preset buttons */
+#timerMode .clock-container {
+    margin-top: +5.45rem;
+}
+
+/* Landscape mode - allow more scrolling space for timer and stopwatch */
+@media screen and (orientation: landscape) {
+    #timerMode .clock-container {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        min-height: auto;
+    }
+    
+    #timerMode {
+        justify-content: flex-start;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        overflow-y: auto;
+    }
+    
+    #stopwatchMode .clock-container {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        min-height: auto;
+    }
+    
+    #stopwatchMode {
+        justify-content: flex-start;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        overflow-y: auto;
+    }
+}
+
 /* Clock Mode */
 .clock-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .time-display {
     font-size: 17vw;
-    font-family: 'Digital7', 'Consolas', monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     color: #ffffff;
     letter-spacing: 0.08em;
     line-height: 1;
     position: static;
 }
 
-.time-display.blink-colon {
-    animation: blinkColon 1s infinite;
-}
 
-@keyframes blinkColon {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.3; }
-}
+
+
 
 .date-display {
     font-size: 3vw;
-    font-family: 'Digital7', 'Consolas', monospace;
-    color: #cccccc;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #999999;
     letter-spacing: 0.12em;
     margin: 0.5em 0;
     position: static;
@@ -127,6 +138,37 @@ body {
     gap: 0;
 }
 
+@media screen and (max-width: 768px) {
+    .dual-clock-container {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .clock-half {
+        width: 100%;
+        height: auto;
+        margin-bottom: -20rem;
+    }
+    
+    .clock-half:last-child {
+        margin-bottom: 0;
+    }
+    
+    .dual-clock-container .date-display {
+        margin: 0;
+        color: #999999;
+    }
+    
+    .dual-clock-container .clock-controls {
+        margin-top: 1rem;
+        margin-bottom: 0;
+    }
+    
+    .dual-clock-container .clock-container {
+        gap: 0.3rem;
+    }
+}
+
 .clock-half {
     width: 50%;
     height: 100%;
@@ -134,108 +176,119 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.clock-half:last-child {
-    border-right: none;
-}
+
 
 .clock-half .time-display {
-    font-size: 17vw;
+    font-size: 8vw;
     position: static;
 }
 
 .clock-half .date-display {
-    font-size: 3vw;
+    font-size: 1.8vw;
+    color: #999999;
     position: static;
 }
 
 /* Timer Mode */
 .timer-display {
     font-size: 17vw;
-    font-family: 'Digital7', 'Consolas', monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     color: #ffffff;
     letter-spacing: 0.08em;
     line-height: 1;
-    margin-bottom: 0.5rem;
     position: static;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
+.timer-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 17vw;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #ffffff;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    width: 2.5ch;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    caret-color: transparent;
+}
+
+.timer-input:focus {
+    background: transparent;
+    border: none;
+    outline: none;
+    caret-color: #ffffff;
+}
+
+.timer-separator {
+    font-size: 17vw;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #ffffff;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+}
+
+
 
 .milliseconds-display {
     font-size: 3vw;
     color: #999999;
-    margin-top: 0.22em;
-    margin-bottom: 1.2em;
-    font-family: 'Digital7', 'Consolas', monospace;
+    margin: 0.5em 0;
+    font-family: 'Consolas', 'Courier New', monospace;
     letter-spacing: 0.05em;
 }
+
+
 
 .timer-controls {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
 }
 
-.time-inputs {
+.preset-buttons {
     display: flex;
-    align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1rem;
 }
 
-.input-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.separator {
-    font-size: 2rem;
-    color: #cccccc;
-    margin: 0 0.5rem;
-    align-self: center;
-    margin-top: 2rem;
-}
-
-.time-input {
-    width: 3rem;
-    height: 2.5rem;
-    font-size: 1.4em;
-    font-family: 'Digital7', 'Consolas', monospace;
-    background: #111111;
-    border: 1px solid #333333;
-    border-radius: 0.3em;
-    color: #dddddd;
-    text-align: center;
-    padding: 0.1em 0.4em;
-}
-
-.time-input:focus {
-    outline: none;
-    border-color: #cccccc;
-}
-
-.increment-btn, .decrement-btn {
-    width: 3rem;
-    height: 2rem;
-    font-size: 1.2rem;
-    font-family: 'Digital7', 'Consolas', monospace;
-    background: #222222;
+.preset-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    font-family: 'Consolas', 'Courier New', monospace;
+    background: transparent;
     border: 1px solid #444444;
     border-radius: 0.3rem;
     color: #999999;
     cursor: pointer;
+    letter-spacing: 0.05em;
     transition: all 0.2s ease;
+    opacity: 0.58;
 }
 
-.increment-btn:hover, .decrement-btn:hover,
-.increment-btn:focus, .decrement-btn:focus {
+.preset-btn:hover, .preset-btn:focus {
     background: #000000;
     color: #eeeeee;
     border-color: #cccccc;
+    opacity: 1;
 }
+
+
+
+
+
+
 
 /* Action Buttons */
 .action-buttons {
@@ -248,7 +301,7 @@ body {
 .action-btn {
     padding: 0.8rem 1.5rem;
     font-size: 1.1rem;
-    font-family: 'Digital7', 'Consolas', monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     background: transparent;
     border: 1px solid #444444;
     border-radius: 0.3rem;
@@ -257,12 +310,14 @@ body {
     letter-spacing: 0.05em;
     transition: all 0.2s ease;
     min-width: 5rem;
+    opacity: 0.58;
 }
 
 .action-btn:hover, .action-btn:focus {
     background: #000000;
     color: #eeeeee;
     border-color: #cccccc;
+    opacity: 1;
 }
 
 .action-btn.active {
@@ -275,7 +330,7 @@ body {
 .control-btn {
     padding: 0.6rem 1.2rem;
     font-size: 1rem;
-    font-family: 'Digital7', 'Consolas', monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     background: transparent;
     border: 1px solid #444444;
     border-radius: 0.3rem;
@@ -293,14 +348,45 @@ body {
     opacity: 1;
 }
 
+/* Mobile touch improvements for close buttons */
+@media screen and (max-width: 768px) {
+    .close-btn {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: manipulation;
+    }
+}
+
+/* Converter Mode */
+.converter-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    color: #ffffff;
+    font-family: 'Consolas', 'Courier New', monospace;
+    padding: 2rem;
+}
+
+.converter-display h2 {
+    font-size: 2.5rem;
+    color: #999999;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+    max-width: 600px;
+}
+
 /* Stopwatch Mode */
 .stopwatch-display {
     font-size: 17vw;
-    font-family: 'Digital7', 'Consolas', monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     color: #ffffff;
     letter-spacing: 0.08em;
     line-height: 1;
-    margin-bottom: 0.5rem;
     position: static;
 }
 
@@ -309,15 +395,21 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 2rem;
+    position: relative;
+    width: 100%;
 }
 
 /* Lap List */
 .lap-list {
-    max-height: 30vh;
+    max-height: 120px;
     overflow-y: auto;
     width: 100%;
     max-width: 400px;
     padding: 0 1rem;
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 0.3rem;
+    border: 1px solid #333333;
+    display: none;
 }
 
 .lap-item {
@@ -325,10 +417,9 @@ body {
     justify-content: space-between;
     padding: 0.5rem 0;
     border-bottom: 1px solid #333333;
-    font-family: 'Digital7', 'Consolas', monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     font-size: 0.9rem;
     color: #999999;
-    transition: background-color 0.3s ease;
 }
 
 .lap-item:last-child {
@@ -339,6 +430,8 @@ body {
     background-color: #222222;
     color: #eeeeee;
 }
+
+
 
 /* Timezone Modal */
 .modal {
@@ -379,7 +472,7 @@ body {
 }
 
 .modal-header h3 {
-    font-family: 'Digital7', 'Consolas', monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     font-size: 1.2rem;
     color: #eeeeee;
     letter-spacing: 0.05em;
@@ -412,7 +505,7 @@ body {
     background: transparent;
     border: none;
     color: #999999;
-    font-family: 'Digital7', 'Consolas', monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     font-size: 0.9rem;
     text-align: left;
     cursor: pointer;
@@ -431,6 +524,31 @@ body {
     color: #eeeeee;
 }
 
+/* Banner */
+.banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 0.5rem 1rem;
+    text-align: center;
+    z-index: 300;
+    transition: opacity 0.5s ease;
+    opacity: 1;
+}
+
+.banner.hidden {
+    opacity: 0;
+}
+
+.banner span {
+    color: #999999;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+}
+
 /* Navigation Menu */
 .navigation-menu {
     position: fixed;
@@ -441,41 +559,79 @@ body {
     min-height: 64px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 1rem;
     padding: 0 1rem;
     box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.14);
     z-index: 200;
-    transition: transform 0.3s ease, opacity 0.3s ease;
     overflow-x: auto;
     white-space: nowrap;
+    transition: opacity 0.5s ease;
 }
 
 .navigation-menu.hidden {
-    transform: translateY(100%);
     opacity: 0;
+    pointer-events: none;
 }
+
+/* Landscape mode - center the navigation */
+@media screen and (orientation: landscape) {
+    .navigation-menu {
+        justify-content: center;
+    }
+    
+    .navigation-menu.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+    
+    /* Ensure toggle buttons maintain active states in landscape */
+    .nav-btn.active {
+        color: #ffffff;
+        opacity: 1;
+    }
+}
+
+
 
 .nav-btn {
     background: transparent;
     border: none;
     color: #999999;
-    font-family: 'Digital7', 'Consolas', monospace;
+    font-family: 'Consolas', 'Courier New', monospace;
     font-size: 0.9rem;
     letter-spacing: 0.05em;
     padding: 0.8rem 1rem;
     cursor: pointer;
     opacity: 0.58;
-    transition: color 0.18s ease, background 0.13s ease, opacity 0.2s ease;
-    border-radius: 0.3rem;
+    transition: all 0.2s ease;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
-.nav-btn:hover, .nav-btn:focus, .nav-btn.active {
-    color: #eeeeee;
-    background: #000000;
+.nav-btn:hover {
+    color: #ffffff;
+    background: transparent;
+    border: none;
     opacity: 1;
+    outline: none;
+}
+
+.nav-btn.active {
+    color: #ffffff !important;
+    background: transparent;
+    border: none;
+    opacity: 1 !important;
+    outline: none;
+}
+
+/* Ensure inactive buttons return to proper state */
+.nav-btn:not(.active) {
+    color: #999999;
+    opacity: 0.58;
+}
+
+.nav-btn:focus {
     outline: none;
 }
 
@@ -486,55 +642,28 @@ body {
     flex-shrink: 0;
 }
 
-/* Show Menu Button */
-.show-menu-btn {
-    position: fixed;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.97);
-    border: 1px solid #333333;
-    border-radius: 0.3rem;
-    color: #999999;
-    font-family: 'Digital7', 'Consolas', monospace;
-    font-size: 0.9rem;
-    letter-spacing: 0.05em;
-    padding: 0.8rem 1.5rem;
-    cursor: pointer;
-    opacity: 0.58;
-    transition: all 0.2s ease;
-    z-index: 150;
-    display: none;
-}
 
-.show-menu-btn.visible {
-    display: block;
-}
-
-.show-menu-btn:hover, .show-menu-btn:focus {
-    color: #eeeeee;
-    background: #000000;
-    opacity: 1;
-    outline: none;
-}
 
 /* Responsive Design */
 @media screen and (max-width: 768px) {
+    
     .time-display {
         font-size: 20vw;
     }
     
     .date-display {
         font-size: 4vw;
+        color: #999999;
     }
     
     .clock-half .time-display {
-        font-size: 20vw;
+        font-size: 17vw;
         position: static;
     }
     
     .clock-half .date-display {
         font-size: 4vw;
+        color: #999999;
         position: static;
     }
     
@@ -546,19 +675,27 @@ body {
         font-size: 4vw;
     }
     
-    .header-banner {
-        font-size: 3.5vw;
-        top: 15%;
-    }
+
     
     .navigation-menu {
         padding: 0 0.5rem;
         gap: 0.5rem;
     }
     
+    .navigation-menu.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+    
     .nav-btn {
         font-size: 0.8rem;
         padding: 0.6rem 0.8rem;
+    }
+    
+    /* Ensure toggle buttons work properly on mobile */
+    .nav-btn.active {
+        color: #ffffff;
+        opacity: 1;
     }
     
     .action-buttons {
@@ -568,6 +705,19 @@ body {
     .action-btn {
         padding: 0.6rem 1.2rem;
         font-size: 1rem;
+    }
+    
+    .converter-display h2 {
+        font-size: 1.8rem;
+        padding: 0 1rem;
+    }
+    
+    .banner {
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .banner span {
+        font-size: 0.8rem;
     }
 }
 
@@ -602,6 +752,17 @@ body {
         font-size: 0.9rem;
         min-width: 4rem;
     }
+    
+    /* Ensure toggle buttons work properly on small mobile */
+    .nav-btn.active {
+        color: #ffffff;
+        opacity: 1;
+    }
+    
+    .navigation-menu.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
 }
 
 /* Fullscreen Styles */
@@ -609,32 +770,13 @@ body {
     background: #000000;
 }
 
-.fullscreen-mode .header-banner {
-    display: none;
-}
 
-.fullscreen-mode .navigation-menu {
-    display: none;
-}
 
-.fullscreen-mode .show-menu-btn {
-    display: none;
-}
 
-/* Utility Classes */
-.hidden {
-    display: none;
-}
 
-.fade-out {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
 
-.fade-in {
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
+
+
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
