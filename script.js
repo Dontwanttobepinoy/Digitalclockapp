@@ -28,6 +28,8 @@ class DigitalClockApp {
             laps: []
         };
         
+
+        
         // Clock configurations for dual mode
         this.clockConfigs = {
             left: { timezone: 'local', format24h: false },
@@ -70,16 +72,16 @@ class DigitalClockApp {
         console.log('Digital Clock App initializing...');
         
         try {
-            this.loadSettings();
-            this.setupEventListeners();
-            this.createTimezoneList();
-            this.startClockUpdate();
+        this.loadSettings();
+        this.setupEventListeners();
+        this.createTimezoneList();
+        this.startClockUpdate();
             this.initBanner();
             this.initNavigationAutoHide();
-            
+        
             // Initialize audio with error handling
-            this.clickSound = document.getElementById('clickSound');
-            this.alarmSound = document.getElementById('alarmSound');
+        this.clickSound = document.getElementById('clickSound');
+        this.alarmSound = document.getElementById('alarmSound');
             
             if (this.clickSound) {
                 this.clickSound.addEventListener('error', (e) => {
@@ -110,10 +112,15 @@ class DigitalClockApp {
             }
             
             console.log('Digital Clock App initialized successfully');
+            
+            // Apply mobile-specific font optimizations
+    
         } catch (error) {
             console.error('Error during initialization:', error);
         }
     }
+    
+
     
     initBanner() {
         const banner = document.getElementById('banner');
@@ -229,11 +236,43 @@ class DigitalClockApp {
         const converterBtn = document.getElementById('converterBtn');
         const timerBtn = document.getElementById('timerBtn');
         const stopwatchBtn = document.getElementById('stopwatchBtn');
+        const blogBtn = document.getElementById('blogBtn');
         
-        if (clockBtn) clockBtn.addEventListener('click', () => this.switchMode('clock'));
-        if (converterBtn) converterBtn.addEventListener('click', () => this.switchMode('converter'));
-        if (timerBtn) timerBtn.addEventListener('click', () => this.switchMode('timer'));
-        if (stopwatchBtn) stopwatchBtn.addEventListener('click', () => this.switchMode('stopwatch'));
+        if (clockBtn) {
+            clockBtn.addEventListener('click', () => this.switchMode('clock'));
+            clockBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.switchMode('clock');
+            });
+        }
+        if (converterBtn) {
+            converterBtn.addEventListener('click', () => this.switchMode('converter'));
+            converterBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.switchMode('converter');
+            });
+        }
+        if (timerBtn) {
+            timerBtn.addEventListener('click', () => this.switchMode('timer'));
+            timerBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.switchMode('timer');
+            });
+        }
+        if (stopwatchBtn) {
+            stopwatchBtn.addEventListener('click', () => this.switchMode('stopwatch'));
+            stopwatchBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.switchMode('stopwatch');
+            });
+        }
+        if (blogBtn) {
+            blogBtn.addEventListener('click', () => this.switchMode('blog'));
+            blogBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.switchMode('blog');
+            });
+        }
         
         // Toggle buttons - with null checks
         const formatToggle = document.getElementById('formatToggle');
@@ -241,14 +280,54 @@ class DigitalClockApp {
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const shareBtn = document.getElementById('shareBtn');
         
-        if (formatToggle) formatToggle.addEventListener('click', () => this.toggleTimeFormat());
-        if (muteToggle) muteToggle.addEventListener('click', () => this.toggleMute());
-        if (fullscreenBtn) fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
-        if (shareBtn) shareBtn.addEventListener('click', () => this.shareApp());
+        if (formatToggle) {
+            formatToggle.addEventListener('click', () => this.toggleTimeFormat());
+            formatToggle.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.toggleTimeFormat();
+            });
+        }
+        if (muteToggle) {
+            muteToggle.addEventListener('click', () => this.toggleMute());
+            muteToggle.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.toggleMute();
+            });
+        }
+        if (fullscreenBtn) {
+            fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+            fullscreenBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.toggleFullscreen();
+            });
+        }
+        if (shareBtn) {
+            shareBtn.addEventListener('click', () => this.shareApp());
+            shareBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.shareApp();
+            });
+        }
         
         // Clock mode buttons
-        document.getElementById('localBtn').addEventListener('click', () => this.openTimezoneModal('main'));
-        document.getElementById('dualClockBtn').addEventListener('click', () => this.enterDualClockMode());
+        const localBtn = document.getElementById('localBtn');
+        const dualClockBtn = document.getElementById('dualClockBtn');
+        
+        if (localBtn) {
+            localBtn.addEventListener('click', () => this.openTimezoneModal('main'));
+            localBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.openTimezoneModal('main');
+            });
+        }
+        
+        if (dualClockBtn) {
+            dualClockBtn.addEventListener('click', () => this.enterDualClockMode());
+            dualClockBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.enterDualClockMode();
+            });
+        }
         
         // Dual clock mode buttons
         // Use event delegation for timezone buttons
@@ -293,18 +372,38 @@ class DigitalClockApp {
         });
         
         // Timer controls
-        document.getElementById('timerStartBtn').addEventListener('click', () => this.toggleTimer());
-        document.getElementById('timerResetBtn').addEventListener('click', () => this.resetTimer());
+        const timerStartBtn = document.getElementById('timerStartBtn');
+        const timerResetBtn = document.getElementById('timerResetBtn');
+        
+        if (timerStartBtn) {
+            timerStartBtn.addEventListener('click', () => this.toggleTimer());
+            timerStartBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.toggleTimer();
+            });
+        }
+        
+        if (timerResetBtn) {
+            timerResetBtn.addEventListener('click', () => this.resetTimer());
+            timerResetBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.resetTimer();
+            });
+        }
         
         // Preset buttons
         document.querySelectorAll('.preset-btn').forEach(btn => {
             btn.addEventListener('click', (e) => this.setPresetTime(parseInt(e.target.dataset.time)));
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.setPresetTime(parseInt(e.target.dataset.time));
+            });
         });
         
         // Timer input fields
-        document.getElementById('hoursInput').addEventListener('input', (e) => this.validateTimerInput(e, 23));
-        document.getElementById('minutesInput').addEventListener('input', (e) => this.validateTimerInput(e, 59));
-        document.getElementById('secondsInput').addEventListener('input', (e) => this.validateTimerInput(e, 59));
+        document.getElementById('hoursInput').addEventListener('keydown', (e) => this.validateTimerInput(e, 23));
+        document.getElementById('minutesInput').addEventListener('keydown', (e) => this.validateTimerInput(e, 59));
+        document.getElementById('secondsInput').addEventListener('keydown', (e) => this.validateTimerInput(e, 59));
         
         // Auto-focus next input on max length
         document.querySelectorAll('.timer-input').forEach(input => {
@@ -314,15 +413,57 @@ class DigitalClockApp {
 
         
         // Stopwatch controls
-        document.getElementById('stopwatchStartBtn').addEventListener('click', () => this.toggleStopwatch());
-        document.getElementById('stopwatchLapBtn').addEventListener('click', () => this.recordLap());
-        document.getElementById('stopwatchResetBtn').addEventListener('click', () => this.resetStopwatch());
+        const stopwatchStartBtn = document.getElementById('stopwatchStartBtn');
+        const stopwatchLapBtn = document.getElementById('stopwatchLapBtn');
+        const stopwatchResetBtn = document.getElementById('stopwatchResetBtn');
+        
+        if (stopwatchStartBtn) {
+            stopwatchStartBtn.addEventListener('click', () => this.toggleStopwatch());
+            stopwatchStartBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.toggleStopwatch();
+            });
+        }
+        
+        if (stopwatchLapBtn) {
+            stopwatchLapBtn.addEventListener('click', () => this.recordLap());
+            stopwatchLapBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.recordLap();
+            });
+        }
+        
+        if (stopwatchResetBtn) {
+            stopwatchResetBtn.addEventListener('click', () => this.resetStopwatch());
+            stopwatchResetBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.resetStopwatch();
+            });
+        }
         
         // Modal controls
-        document.querySelector('.close-modal').addEventListener('click', () => this.closeTimezoneModal());
-        document.getElementById('timezoneModal').addEventListener('click', (e) => {
-            if (e.target.id === 'timezoneModal') this.closeTimezoneModal();
-        });
+        const closeModal = document.querySelector('.close-modal');
+        const timezoneModal = document.getElementById('timezoneModal');
+        
+        if (closeModal) {
+            closeModal.addEventListener('click', () => this.closeTimezoneModal());
+            closeModal.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.closeTimezoneModal();
+            });
+        }
+        
+        if (timezoneModal) {
+            timezoneModal.addEventListener('click', (e) => {
+                if (e.target.id === 'timezoneModal') this.closeTimezoneModal();
+            });
+            timezoneModal.addEventListener('touchend', (e) => {
+                if (e.target.id === 'timezoneModal') {
+                    e.preventDefault();
+                    this.closeTimezoneModal();
+                }
+            });
+        }
         
 
     }
@@ -378,6 +519,9 @@ class DigitalClockApp {
         } else if (mode === 'stopwatch') {
             document.getElementById('stopwatchMode').classList.add('active');
             document.getElementById('stopwatchBtn').classList.add('active');
+        } else if (mode === 'blog') {
+            document.getElementById('blogMode').classList.add('active');
+            document.getElementById('blogBtn').classList.add('active');
         }
         
         this.currentMode = mode;
@@ -430,18 +574,60 @@ class DigitalClockApp {
     toggleFullscreen() {
         this.playSound('click');
         
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().then(() => {
+        // Check for various fullscreen APIs (mobile browsers may use different ones)
+        const doc = document;
+        const docEl = doc.documentElement;
+        
+        const requestFullscreen = docEl.requestFullscreen || 
+                                 docEl.mozRequestFullScreen || 
+                                 docEl.webkitRequestFullscreen || 
+                                 docEl.msRequestFullscreen;
+        
+        const exitFullscreen = doc.exitFullscreen || 
+                              doc.mozCancelFullScreen || 
+                              doc.webkitExitFullscreen || 
+                              doc.msExitFullscreen;
+        
+        const fullscreenElement = doc.fullscreenElement || 
+                                 doc.mozFullScreenElement || 
+                                 doc.webkitFullscreenElement || 
+                                 doc.msFullscreenElement;
+        
+        if (!fullscreenElement) {
+            if (requestFullscreen) {
+                requestFullscreen.call(docEl).then(() => {
                 this.isFullscreen = true;
                 document.body.classList.add('fullscreen-mode');
-                document.getElementById('fullscreenBtn').classList.add('active');
-            }).catch(e => console.log('Fullscreen failed:', e));
+                    document.getElementById('fullscreenBtn').classList.add('active');
+                }).catch(e => {
+                    console.log('Fullscreen failed:', e);
+                    // On mobile, fullscreen might not be supported, show user feedback
+                    if (e.name === 'NotSupportedError' || e.name === 'TypeError') {
+                        const fullscreenBtn = document.getElementById('fullscreenBtn');
+                        const originalText = fullscreenBtn.textContent;
+                        fullscreenBtn.textContent = 'NOT SUPPORTED';
+                        setTimeout(() => {
+                            fullscreenBtn.textContent = originalText;
+                        }, 2000);
+                    }
+                });
         } else {
-            document.exitFullscreen().then(() => {
+                // Fallback for browsers that don't support fullscreen
+                const fullscreenBtn = document.getElementById('fullscreenBtn');
+                const originalText = fullscreenBtn.textContent;
+                fullscreenBtn.textContent = 'NOT SUPPORTED';
+                setTimeout(() => {
+                    fullscreenBtn.textContent = originalText;
+                }, 2000);
+            }
+        } else {
+            if (exitFullscreen) {
+                exitFullscreen.call(doc).then(() => {
                 this.isFullscreen = false;
                 document.body.classList.remove('fullscreen-mode');
-                document.getElementById('fullscreenBtn').classList.remove('active');
+                    document.getElementById('fullscreenBtn').classList.remove('active');
             }).catch(e => console.log('Exit fullscreen failed:', e));
+            }
         }
     }
     
@@ -602,13 +788,23 @@ class DigitalClockApp {
             let hours = 0, minutes = 0, seconds = 0;
             
             if (hoursInput && minutesInput && secondsInput) {
-                hours = parseInt(hoursInput.value) || 0;
-                minutes = parseInt(minutesInput.value) || 0;
-                seconds = parseInt(secondsInput.value) || 0;
+                // Get values from input fields, prioritize user input over placeholders
+                hours = hoursInput.value.trim() !== '' ? parseInt(hoursInput.value) : parseInt(hoursInput.placeholder) || 0;
+                minutes = minutesInput.value.trim() !== '' ? parseInt(minutesInput.value) : parseInt(minutesInput.placeholder) || 0;
+                seconds = secondsInput.value.trim() !== '' ? parseInt(secondsInput.value) : parseInt(secondsInput.placeholder) || 0;
+                
+                // Validate ranges (0-99 for all fields)
+                hours = Math.min(Math.max(hours, 0), 99);
+                minutes = Math.min(Math.max(minutes, 0), 99);
+                seconds = Math.min(Math.max(seconds, 0), 99);
             } else {
-                // Fallback to default 1 minute if inputs don't exist
+                // Fallback to default 1 minute only if input elements don't exist
+                // This should rarely happen in normal operation
                 minutes = 1;
             }
+            
+            // Only default to 1 minute if there are no input fields at all
+            // If all values are 0, that's a valid timer duration (0 seconds)
             
             const totalMs = (hours * 3600000) + (minutes * 60000) + (seconds * 1000);
             
@@ -645,14 +841,23 @@ class DigitalClockApp {
         document.getElementById('timerStartBtn').textContent = 'START';
         document.getElementById('timerStartBtn').classList.remove('active');
         
-        // Only update input fields if they exist (timer mode is active)
+        // Clear input fields and placeholders
         const hoursInput = document.getElementById('hoursInput');
         const minutesInput = document.getElementById('minutesInput');
         const secondsInput = document.getElementById('secondsInput');
         
-        if (hoursInput) hoursInput.value = '00';
-        if (minutesInput) minutesInput.value = '00';
-        if (secondsInput) secondsInput.value = '00';
+        if (hoursInput) {
+            hoursInput.value = '';
+            hoursInput.placeholder = '00';
+        }
+        if (minutesInput) {
+            minutesInput.value = '';
+            minutesInput.placeholder = '00';
+        }
+        if (secondsInput) {
+            secondsInput.value = '';
+            secondsInput.placeholder = '00';
+        }
         
         document.getElementById('timerMilliseconds').textContent = '000ms';
     }
@@ -667,10 +872,10 @@ class DigitalClockApp {
                 return;
             }
             
-            const totalSeconds = Math.floor(this.timerState.remaining / 1000);
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
+        const totalSeconds = Math.floor(this.timerState.remaining / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
             const milliseconds = Math.floor((this.timerState.remaining % 1000) / 10);
             
             // Update input fields if they exist (timer mode is active)
@@ -679,6 +884,7 @@ class DigitalClockApp {
             const secondsInput = document.getElementById('secondsInput');
             const timerMilliseconds = document.getElementById('timerMilliseconds');
             
+            // Update input fields with current timer values
             if (hoursInput && minutesInput && secondsInput) {
                 hoursInput.value = hours.toString().padStart(2, '0');
                 minutesInput.value = minutes.toString().padStart(2, '0');
@@ -702,14 +908,14 @@ class DigitalClockApp {
         // Keep button as "STOP" - don't change to "START" yet
         // Button will change to "START" when alarm finishes or user clicks
         
-        // Only update input fields if they exist (timer mode is active)
+        // Clear input fields (they will show placeholders)
         const hoursInput = document.getElementById('hoursInput');
         const minutesInput = document.getElementById('minutesInput');
         const secondsInput = document.getElementById('secondsInput');
         
-        if (hoursInput) hoursInput.value = '00';
-        if (minutesInput) minutesInput.value = '00';
-        if (secondsInput) secondsInput.value = '00';
+        if (hoursInput) hoursInput.value = '';
+        if (minutesInput) minutesInput.value = '';
+        if (secondsInput) secondsInput.value = '';
         
         document.getElementById('timerMilliseconds').textContent = '000ms';
         
@@ -748,33 +954,68 @@ class DigitalClockApp {
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
         
-        // Only update input fields if they exist (timer mode is active)
+        // Update input fields with placeholder values (not actual values)
         const hoursInput = document.getElementById('hoursInput');
         const minutesInput = document.getElementById('minutesInput');
         const secondsInput = document.getElementById('secondsInput');
         
-        if (hoursInput) hoursInput.value = hours.toString().padStart(2, '0');
-        if (minutesInput) minutesInput.value = minutes.toString().padStart(2, '0');
-        if (secondsInput) secondsInput.value = seconds.toString().padStart(2, '0');
+        if (hoursInput) {
+            hoursInput.value = ''; // Clear actual value
+            hoursInput.placeholder = hours.toString().padStart(2, '0'); // Set placeholder
+        }
+        if (minutesInput) {
+            minutesInput.value = ''; // Clear actual value
+            minutesInput.placeholder = minutes.toString().padStart(2, '0'); // Set placeholder
+        }
+        if (secondsInput) {
+            secondsInput.value = ''; // Clear actual value
+            secondsInput.placeholder = seconds.toString().padStart(2, '0'); // Set placeholder
+        }
     }
     
     validateTimerInput(event, maxValue) {
-        let value = event.target.value.replace(/\D/g, ''); // Remove non-digits
-        let numValue = parseInt(value) || 0;
-        
-        if (numValue > maxValue) {
-            numValue = maxValue;
+        // Allow backspace, delete, arrow keys, and navigation
+        if (event.key === 'Backspace' || event.key === 'Delete' || 
+            event.key === 'ArrowLeft' || event.key === 'ArrowRight' ||
+            event.key === 'Tab' || event.key === 'Enter') {
+            return;
         }
         
-        event.target.value = numValue.toString().padStart(2, '0');
+        // Only allow digits
+        if (!/\d/.test(event.key)) {
+            event.preventDefault();
+            return;
+        }
+        
+        // Get current value and new character
+        const currentValue = event.target.value;
+        const newChar = event.key;
+        
+        // Create new value
+        let newValue = currentValue + newChar;
+        
+        // Remove non-digits and limit to 2 characters
+        newValue = newValue.replace(/\D/g, '').slice(0, 2);
+        
+        // Convert to number and validate (allow 0-99)
+        let numValue = parseInt(newValue) || 0;
+        
+        // Don't prevent default - let the input handle naturally
+        // The input will show both digits, and handleTimerInputNavigation will auto-advance
     }
     
     handleTimerInputNavigation(event) {
         const inputs = ['hoursInput', 'minutesInput', 'secondsInput'];
         const currentIndex = inputs.indexOf(event.target.id);
         
+        // Auto-advance to next field when 2 digits are entered
         if (event.target.value.length === 2 && currentIndex < inputs.length - 1) {
             document.getElementById(inputs[currentIndex + 1]).focus();
+        }
+        
+        // Also handle backspace to go to previous field when current field is empty
+        if (event.key === 'Backspace' && event.target.value.length === 0 && currentIndex > 0) {
+            document.getElementById(inputs[currentIndex - 1]).focus();
         }
     }
     
@@ -962,6 +1203,10 @@ class DigitalClockApp {
         localItem.className = 'timezone-item';
         localItem.textContent = 'Local Time';
         localItem.addEventListener('click', () => this.selectTimezone('local'));
+        localItem.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            this.selectTimezone('local');
+        });
         list.appendChild(localItem);
         
         // Add UTC timezones
@@ -970,6 +1215,10 @@ class DigitalClockApp {
             item.className = 'timezone-item';
             item.textContent = `${tz.name} - ${tz.label}`;
             item.addEventListener('click', () => this.selectTimezone(tz.name));
+            item.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                this.selectTimezone(tz.name);
+            });
             list.appendChild(item);
         });
     }
@@ -1022,15 +1271,15 @@ class DigitalClockApp {
     // Settings persistence
     saveSettings() {
         try {
-            const settings = {
-                currentMode: this.currentMode,
-                is24HourFormat: this.is24HourFormat,
-                isMuted: this.isMuted,
-                dualClockMode: this.dualClockMode,
-                clockConfigs: this.clockConfigs
-            };
-            
-            localStorage.setItem('digitalClockAppSettings', JSON.stringify(settings));
+        const settings = {
+            currentMode: this.currentMode,
+            is24HourFormat: this.is24HourFormat,
+            isMuted: this.isMuted,
+            dualClockMode: this.dualClockMode,
+            clockConfigs: this.clockConfigs
+        };
+        
+        localStorage.setItem('digitalClockAppSettings', JSON.stringify(settings));
             console.log('Settings saved successfully');
         } catch (error) {
             console.error('Failed to save settings:', error);
