@@ -69,10 +69,7 @@ class DigitalClockApp {
     }
     
     init() {
-        console.log('Digital Clock App initializing...');
-        
-        // Debug font loading
-        this.debugFontLoading();
+
         
         try {
         this.loadSettings();
@@ -90,9 +87,9 @@ class DigitalClockApp {
                 this.clickSound.addEventListener('error', (e) => {
                     console.error('Click sound failed to load:', e);
                 });
-                this.clickSound.addEventListener('canplaythrough', () => {
-                    console.log('Click sound loaded successfully');
-                });
+                        this.clickSound.addEventListener('canplaythrough', () => {
+            // Click sound loaded successfully
+        });
             } else {
                 console.error('Click sound element not found');
             }
@@ -101,9 +98,9 @@ class DigitalClockApp {
                 this.alarmSound.addEventListener('error', (e) => {
                     console.error('Alarm sound failed to load:', e);
                 });
-                this.alarmSound.addEventListener('canplaythrough', () => {
-                    console.log('Alarm sound loaded successfully');
-                });
+                        this.alarmSound.addEventListener('canplaythrough', () => {
+            // Alarm sound loaded successfully
+        });
             } else {
                 console.error('Alarm sound element not found');
             }
@@ -114,7 +111,7 @@ class DigitalClockApp {
                 if (muteBtn) muteBtn.classList.add('active');
             }
             
-            console.log('Digital Clock App initialized successfully');
+            // Digital Clock App initialized successfully
             
             // Apply mobile-specific font optimizations
     
@@ -123,39 +120,7 @@ class DigitalClockApp {
         }
     }
     
-    debugFontLoading() {
-        console.log('Checking Digital7 font loading...');
-        
-        // Check if font is loaded
-        if (document.fonts && document.fonts.check) {
-            const isLoaded = document.fonts.check('1em Digital7');
-            console.log('Digital7 font loaded:', isLoaded);
-            
-            // Wait for fonts to load
-            document.fonts.ready.then(() => {
-                console.log('All fonts loaded');
-                const isLoadedAfter = document.fonts.check('1em Digital7');
-                console.log('Digital7 font loaded after ready:', isLoadedAfter);
-            });
-        } else {
-            console.log('Font loading API not available');
-        }
-        
-        // Force font loading
-        const testElement = document.createElement('div');
-        testElement.style.fontFamily = 'Digital7';
-        testElement.style.position = 'absolute';
-        testElement.style.visibility = 'hidden';
-        testElement.textContent = 'Test';
-        document.body.appendChild(testElement);
-        
-        // Check computed style
-        setTimeout(() => {
-            const computedStyle = window.getComputedStyle(testElement);
-            console.log('Computed font-family:', computedStyle.fontFamily);
-            document.body.removeChild(testElement);
-        }, 1000);
-    }
+
     
 
     
@@ -519,7 +484,12 @@ class DigitalClockApp {
             const sound = soundType === 'click' ? this.clickSound : this.alarmSound;
             if (sound) {
                 sound.currentTime = 0;
-                sound.play().catch(e => console.log('Audio play failed:', e));
+                sound.play().catch(e => {
+                    // Silently handle autoplay policy errors
+                    if (e.name !== 'NotAllowedError') {
+                        console.log('Audio play failed:', e);
+                    }
+                });
             }
         } catch (e) {
             console.log('Audio error:', e);
@@ -556,6 +526,8 @@ class DigitalClockApp {
         } else if (mode === 'stopwatch') {
             document.getElementById('stopwatchMode').classList.add('active');
             document.getElementById('stopwatchBtn').classList.add('active');
+            // Initialize stopwatch display when switching to stopwatch mode
+            this.updateStopwatchDisplay();
         } else if (mode === 'blog') {
             document.getElementById('blogMode').classList.add('active');
             document.getElementById('blogBtn').classList.add('active');
@@ -896,7 +868,7 @@ class DigitalClockApp {
             secondsInput.placeholder = '00';
         }
         
-        document.getElementById('timerMilliseconds').textContent = '00ms';
+        document.getElementById('timerMilliseconds').textContent = '000ms';
     }
     
     updateTimerDisplay() {
@@ -913,7 +885,7 @@ class DigitalClockApp {
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-            const milliseconds = Math.floor((this.timerState.remaining % 1000) / 10);
+            const milliseconds = Math.floor(this.timerState.remaining % 1000);
             
             // Update input fields if they exist (timer mode is active)
             const hoursInput = document.getElementById('hoursInput');
@@ -929,7 +901,7 @@ class DigitalClockApp {
             }
             
             if (timerMilliseconds) {
-                timerMilliseconds.textContent = `${milliseconds.toString().padStart(2, '0')}ms`;
+                timerMilliseconds.textContent = `${milliseconds.toString().padStart(3, '0')}ms`;
             }
             
 
@@ -954,7 +926,7 @@ class DigitalClockApp {
         if (minutesInput) minutesInput.value = '';
         if (secondsInput) secondsInput.value = '';
         
-        document.getElementById('timerMilliseconds').textContent = '00ms';
+        document.getElementById('timerMilliseconds').textContent = '000ms';
         
         // Play alarm and set up auto-reset when sound finishes
         this.playSound('alarm');
@@ -1071,6 +1043,10 @@ class DigitalClockApp {
             this.stopwatchState.startTime = Date.now() - this.stopwatchState.elapsed;
             this.stopwatchState.running = true;
             document.getElementById('stopwatchStartBtn').textContent = 'STOP';
+            // Update display immediately when starting
+            this.updateStopwatchDisplay();
+            // Force another update after a short delay to ensure proper display
+            setTimeout(() => this.updateStopwatchDisplay(), 50);
         } else {
             // Stop stopwatch
             this.stopwatchState.running = false;
@@ -1086,7 +1062,7 @@ class DigitalClockApp {
         
         document.getElementById('stopwatchStartBtn').textContent = 'START';
         document.getElementById('stopwatchDisplay').textContent = '00:00:00';
-        document.getElementById('stopwatchMilliseconds').textContent = '00ms';
+        document.getElementById('stopwatchMilliseconds').textContent = '000ms';
         
         // Clear and hide lap list
         const lapList = document.getElementById('lapList');
@@ -1136,7 +1112,7 @@ class DigitalClockApp {
         const timeStr = this.formatStopwatchTime(this.stopwatchState.elapsed);
         const parts = timeStr.split('.');
         const time = parts[0];
-        const ms = parts[1] || '00';
+        const ms = parts[1] || '000';
         
         document.getElementById('stopwatchDisplay').textContent = time;
         document.getElementById('stopwatchMilliseconds').textContent = ms + 'ms';
@@ -1149,7 +1125,7 @@ class DigitalClockApp {
         const seconds = totalSeconds % 60;
         const milliseconds = Math.floor(ms % 1000);
         
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
     }
     
     // Dual clock functionality
@@ -1317,7 +1293,7 @@ class DigitalClockApp {
         };
         
         localStorage.setItem('digitalClockAppSettings', JSON.stringify(settings));
-            console.log('Settings saved successfully');
+            // Settings saved successfully
         } catch (error) {
             console.error('Failed to save settings:', error);
         }
@@ -1325,11 +1301,11 @@ class DigitalClockApp {
     
     loadSettings() {
         try {
-            console.log('Loading settings...');
+            // Loading settings...
             const saved = localStorage.getItem('digitalClockAppSettings');
             if (saved) {
                 const settings = JSON.parse(saved);
-                console.log('Settings loaded:', settings);
+                // Settings loaded
                 
                 this.currentMode = settings.currentMode || 'clock';
                 this.is24HourFormat = settings.is24HourFormat || false;
@@ -1369,10 +1345,10 @@ class DigitalClockApp {
                             this.updateTimezoneButtonText('right', this.clockConfigs.right.timezone);
                         }
                     }
-                    console.log('Settings applied to UI');
+                    // Settings applied to UI
                 }, 100);
             } else {
-                console.log('No saved settings found, using defaults');
+                // No saved settings found, using defaults
             }
         } catch (e) {
             console.error('Error loading settings:', e);
@@ -1382,32 +1358,12 @@ class DigitalClockApp {
 
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing Digital Clock App...');
+            // DOM loaded, initializing Digital Clock App...
     try {
         window.digitalClockApp = new DigitalClockApp();
-        console.log('Digital Clock App instance created successfully');
+        // Digital Clock App instance created successfully
         
-        // Test function to verify everything is working
-        window.testDigitalClock = () => {
-            console.log('=== Digital Clock App Test ===');
-            console.log('App instance:', window.digitalClockApp);
-            console.log('Current mode:', window.digitalClockApp.currentMode);
-            console.log('24H format:', window.digitalClockApp.is24HourFormat);
-            console.log('Muted:', window.digitalClockApp.isMuted);
-            console.log('Dual mode:', window.digitalClockApp.dualClockMode);
-            console.log('Clock configs:', window.digitalClockApp.clockConfigs);
-            console.log('localStorage available:', typeof localStorage !== 'undefined');
-            console.log('Audio elements:', {
-                clickSound: document.getElementById('clickSound'),
-                alarmSound: document.getElementById('alarmSound')
-            });
-            console.log('=== Test Complete ===');
-        };
-        
-        // Run test after a short delay
-        setTimeout(() => {
-            window.testDigitalClock();
-        }, 1000);
+
         
     } catch (error) {
         console.error('Failed to initialize Digital Clock App:', error);
