@@ -713,6 +713,14 @@ body {
     overflow-x: auto;
     white-space: nowrap;
     transition: opacity 0.5s ease;
+    /* Improve touch scrolling */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    /* Prevent text selection during scroll */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .navigation-menu.hidden {
@@ -753,6 +761,19 @@ body {
     transition: all 0.2s ease;
     white-space: nowrap;
     flex-shrink: 0;
+    /* Improve touch handling */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* Ensure minimum touch target size */
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .nav-btn:hover {
@@ -795,6 +816,9 @@ body {
     /* Hide fullscreen button on mobile devices */
     #fullscreenBtn {
         display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
     
     /* Responsive Design */
@@ -892,6 +916,23 @@ body {
     
     .banner span {
         font-size: 0.8rem;
+    }
+}
+
+/* Additional mobile-specific rules for fullscreen button */
+@media screen and (max-width: 768px), screen and (max-device-width: 768px) {
+    #fullscreenBtn {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        position: absolute !important;
+        left: -9999px !important;
     }
 }
 
