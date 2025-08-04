@@ -1,20 +1,26 @@
 /* Digital7 Font */
 @font-face {
     font-family: 'Digital7';
-    src: url('./digital-7.ttf') format('truetype'),
-         url('digital-7.ttf') format('truetype');
+    src: url('digital-7.ttf') format('truetype');
     font-display: swap;
     font-weight: normal;
     font-style: normal;
 }
 
-/* Force font loading with fallback */
-.font-loading-test {
-    font-family: 'Digital7', monospace;
-    position: absolute;
-    visibility: hidden;
-    font-size: 1px;
+/* Fallback for when Digital7 font fails to load */
+@supports not (font-display: swap) {
+    .time-display,
+    .date-display,
+    .timer-display,
+    .timer-input,
+    .timer-separator,
+    .stopwatch-display,
+    .milliseconds-display {
+        font-family: 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    }
 }
+
+
 
 /* Font Face Declaration */
 
@@ -120,7 +126,7 @@ body {
 
 .time-display {
     font-size: 17vw;
-    font-family: 'Digital7', 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace !important;
+    font-family: 'Digital7', 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
     color: #ffffff;
     letter-spacing: 0.08em;
     line-height: 1;
