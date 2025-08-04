@@ -181,13 +181,19 @@ class DigitalClockApp {
     initNavigationAutoHide() {
         const navigation = document.getElementById('navigationMenu');
         if (navigation) {
-            // Hide navigation after 20 seconds
-            setTimeout(() => {
-                navigation.classList.add('hidden');
-            }, 20000);
+            // Check if mobile device
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
-            // Show navigation on user activity
-            this.setupNavigationActivityListener();
+            if (!isMobile) {
+                // Only auto-hide on desktop devices
+                setTimeout(() => {
+                    navigation.classList.add('hidden');
+                }, 20000);
+                
+                // Show navigation on user activity
+                this.setupNavigationActivityListener();
+            }
+            // On mobile, navigation stays visible (no auto-hide)
         }
     }
     
@@ -195,8 +201,8 @@ class DigitalClockApp {
         const navigation = document.getElementById('navigationMenu');
         let activityTimeout;
         
-        // Events to track for user activity
-        const activityEvents = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart', 'click'];
+        // Events to track for user activity (removed 'scroll' to prevent auto-hide during scrolling)
+        const activityEvents = ['mousemove', 'mousedown', 'keypress', 'touchstart', 'click'];
         
         const showNavigation = () => {
             if (navigation && navigation.classList.contains('hidden')) {
