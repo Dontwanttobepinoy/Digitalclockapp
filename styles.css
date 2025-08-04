@@ -1,8 +1,19 @@
 /* Digital7 Font */
 @font-face {
     font-family: 'Digital7';
-    src: url('digital-7.ttf') format('truetype');
+    src: url('./digital-7.ttf') format('truetype'),
+         url('digital-7.ttf') format('truetype');
     font-display: swap;
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Force font loading with fallback */
+.font-loading-test {
+    font-family: 'Digital7', monospace;
+    position: absolute;
+    visibility: hidden;
+    font-size: 1px;
 }
 
 /* Font Face Declaration */
@@ -109,7 +120,7 @@ body {
 
 .time-display {
     font-size: 17vw;
-    font-family: 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-family: 'Digital7', 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace !important;
     color: #ffffff;
     letter-spacing: 0.08em;
     line-height: 1;
@@ -117,6 +128,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    font-display: swap;
 }
 
 
@@ -125,7 +137,7 @@ body {
 
 .date-display {
     font-size: 3vw;
-    font-family: 'Consolas', 'Courier New', monospace;
+    font-family: 'Digital7', 'Consolas', 'Courier New', monospace;
     color: #999999;
     letter-spacing: 0.12em;
     margin: 0.5em 0;
@@ -188,11 +200,13 @@ body {
 
 .clock-half .time-display {
     font-size: 8vw;
+    font-family: 'Digital7', 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
     position: static;
 }
 
 .clock-half .date-display {
     font-size: 1.8vw;
+    font-family: 'Digital7', 'Consolas', 'Courier New', monospace;
     color: #999999;
     position: static;
 }
@@ -200,7 +214,7 @@ body {
 /* Timer Mode */
 .timer-display {
     font-size: 17vw;
-    font-family: 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-family: 'Digital7', 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
     color: #ffffff;
     letter-spacing: 0.08em;
     line-height: 1;
@@ -218,7 +232,7 @@ body {
     border: none;
     outline: none;
     font-size: 17vw;
-    font-family: 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-family: 'Digital7', 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
     color: #ffffff;
     letter-spacing: 0.08em;
     line-height: 1;
@@ -246,7 +260,7 @@ body {
 
 .timer-separator {
     font-size: 17vw;
-    font-family: 'Consolas', 'Courier New', monospace;
+    font-family: 'Digital7', 'Consolas', 'Courier New', monospace;
     color: #ffffff;
     letter-spacing: 0.08em;
     line-height: 1;
@@ -260,7 +274,7 @@ body {
     font-size: 3vw;
     color: #999999;
     margin: 0.5em 0;
-    font-family: 'Consolas', 'Courier New', monospace;
+    font-family: 'Digital7', 'Consolas', 'Courier New', monospace;
     letter-spacing: 0.05em;
 }
 
@@ -506,7 +520,7 @@ body {
 /* Stopwatch Mode */
 .stopwatch-display {
     font-size: 17vw;
-    font-family: 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-family: 'Digital7', 'Consolas', 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
     color: #ffffff;
     letter-spacing: 0.08em;
     line-height: 1;

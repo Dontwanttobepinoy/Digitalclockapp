@@ -71,6 +71,9 @@ class DigitalClockApp {
     init() {
         console.log('Digital Clock App initializing...');
         
+        // Debug font loading
+        this.debugFontLoading();
+        
         try {
         this.loadSettings();
         this.setupEventListeners();
@@ -118,6 +121,40 @@ class DigitalClockApp {
         } catch (error) {
             console.error('Error during initialization:', error);
         }
+    }
+    
+    debugFontLoading() {
+        console.log('Checking Digital7 font loading...');
+        
+        // Check if font is loaded
+        if (document.fonts && document.fonts.check) {
+            const isLoaded = document.fonts.check('1em Digital7');
+            console.log('Digital7 font loaded:', isLoaded);
+            
+            // Wait for fonts to load
+            document.fonts.ready.then(() => {
+                console.log('All fonts loaded');
+                const isLoadedAfter = document.fonts.check('1em Digital7');
+                console.log('Digital7 font loaded after ready:', isLoadedAfter);
+            });
+        } else {
+            console.log('Font loading API not available');
+        }
+        
+        // Force font loading
+        const testElement = document.createElement('div');
+        testElement.style.fontFamily = 'Digital7';
+        testElement.style.position = 'absolute';
+        testElement.style.visibility = 'hidden';
+        testElement.textContent = 'Test';
+        document.body.appendChild(testElement);
+        
+        // Check computed style
+        setTimeout(() => {
+            const computedStyle = window.getComputedStyle(testElement);
+            console.log('Computed font-family:', computedStyle.fontFamily);
+            document.body.removeChild(testElement);
+        }, 1000);
     }
     
 
@@ -859,7 +896,7 @@ class DigitalClockApp {
             secondsInput.placeholder = '00';
         }
         
-        document.getElementById('timerMilliseconds').textContent = '000ms';
+        document.getElementById('timerMilliseconds').textContent = '00ms';
     }
     
     updateTimerDisplay() {
@@ -892,7 +929,7 @@ class DigitalClockApp {
             }
             
             if (timerMilliseconds) {
-                timerMilliseconds.textContent = `${milliseconds.toString().padStart(3, '0')}ms`;
+                timerMilliseconds.textContent = `${milliseconds.toString().padStart(2, '0')}ms`;
             }
             
 
@@ -917,7 +954,7 @@ class DigitalClockApp {
         if (minutesInput) minutesInput.value = '';
         if (secondsInput) secondsInput.value = '';
         
-        document.getElementById('timerMilliseconds').textContent = '000ms';
+        document.getElementById('timerMilliseconds').textContent = '00ms';
         
         // Play alarm and set up auto-reset when sound finishes
         this.playSound('alarm');
@@ -1049,7 +1086,7 @@ class DigitalClockApp {
         
         document.getElementById('stopwatchStartBtn').textContent = 'START';
         document.getElementById('stopwatchDisplay').textContent = '00:00:00';
-        document.getElementById('stopwatchMilliseconds').textContent = '000ms';
+        document.getElementById('stopwatchMilliseconds').textContent = '00ms';
         
         // Clear and hide lap list
         const lapList = document.getElementById('lapList');
@@ -1099,7 +1136,7 @@ class DigitalClockApp {
         const timeStr = this.formatStopwatchTime(this.stopwatchState.elapsed);
         const parts = timeStr.split('.');
         const time = parts[0];
-        const ms = parts[1] || '000';
+        const ms = parts[1] || '00';
         
         document.getElementById('stopwatchDisplay').textContent = time;
         document.getElementById('stopwatchMilliseconds').textContent = ms + 'ms';
@@ -1112,7 +1149,7 @@ class DigitalClockApp {
         const seconds = totalSeconds % 60;
         const milliseconds = Math.floor(ms % 1000);
         
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
     }
     
     // Dual clock functionality
