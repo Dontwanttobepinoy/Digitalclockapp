@@ -69,7 +69,13 @@ class DigitalClockApp {
     }
     
     init() {
-
+        // Hide fullscreen button on mobile devices
+        this.hideFullscreenButtonOnMobile();
+        
+        // Handle window resize for fullscreen button visibility
+        window.addEventListener('resize', () => {
+            this.hideFullscreenButtonOnMobile();
+        });
         
         try {
         this.loadSettings();
@@ -120,9 +126,113 @@ class DigitalClockApp {
         }
     }
     
-
+    setupNavigationTouchHandling() {
+        const navigation = document.getElementById('navigationMenu');
+        if (!navigation) return;
+        
+        let startX = 0;
+        let startY = 0;
+        let startTime = 0;
+        let isScrolling = false;
+        let scrollThreshold = 10; // Minimum distance to be considered a scroll
+        let timeThreshold = 300; // Maximum time to be considered a tap
+        
+        // Prevent default touch behavior on navigation
+        navigation.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            startTime = Date.now();
+            isScrolling = false;
+        }, { passive: false });
+        
+        navigation.addEventListener('touchmove', (e) => {
+            if (!startX || !startY) return;
+            
+            const deltaX = Math.abs(e.touches[0].clientX - startX);
+            const deltaY = Math.abs(e.touches[0].clientY - startY);
+            
+            // If horizontal movement is greater than vertical, it's likely a scroll
+            if (deltaX > scrollThreshold && deltaX > deltaY) {
+                isScrolling = true;
+                // Allow the scroll to happen
+                e.stopPropagation();
+            } else if (deltaY > scrollThreshold) {
+                // Vertical scroll, prevent horizontal scroll interference
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        navigation.addEventListener('touchend', (e) => {
+            const endTime = Date.now();
+            const timeDiff = endTime - startTime;
+            
+            // If it was a quick touch and not scrolling, it's a tap
+            if (timeDiff < timeThreshold && !isScrolling) {
+                // This was a tap, allow normal button behavior
+                return;
+            }
+            
+            // Reset values
+            startX = 0;
+            startY = 0;
+            startTime = 0;
+            isScrolling = false;
+        }, { passive: true });
+        
+        // Prevent accidental button clicks during scroll
+        const navButtons = navigation.querySelectorAll('.nav-btn');
+        navButtons.forEach(btn => {
+            let touchStartTime = 0;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            
+            btn.addEventListener('touchstart', (e) => {
+                touchStartTime = Date.now();
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            btn.addEventListener('touchend', (e) => {
+                const touchEndTime = Date.now();
+                const touchDuration = touchEndTime - touchStartTime;
+                const deltaX = Math.abs(e.changedTouches[0].clientX - touchStartX);
+                const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
+                
+                // Only trigger click if it was a short, stationary touch
+                if (touchDuration < 300 && deltaX < 10 && deltaY < 10) {
+                    // This is a legitimate tap, allow the click
+                    return;
+                } else {
+                    // This was likely a scroll, prevent the click
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, { passive: false });
+        });
+    }
     
-
+    hideFullscreenButtonOnMobile() {
+        // Check if mobile device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isMobileWidth = window.innerWidth <= 768;
+        
+        if (isMobile || isMobileWidth) {
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            if (fullscreenBtn) {
+                fullscreenBtn.style.display = 'none';
+                fullscreenBtn.style.visibility = 'hidden';
+                fullscreenBtn.style.opacity = '0';
+                fullscreenBtn.style.pointerEvents = 'none';
+                fullscreenBtn.style.width = '0';
+                fullscreenBtn.style.height = '0';
+                fullscreenBtn.style.margin = '0';
+                fullscreenBtn.style.padding = '0';
+                fullscreenBtn.style.border = 'none';
+                fullscreenBtn.style.position = 'absolute';
+                fullscreenBtn.style.left = '-9999px';
+            }
+        }
+    }
     
     initBanner() {
         const banner = document.getElementById('banner');
@@ -239,6 +349,9 @@ class DigitalClockApp {
     }
     
     setupEventListeners() {
+        // Add touch scroll handling for navigation
+        this.setupNavigationTouchHandling();
+        
         // Navigation buttons - with null checks
         const clockBtn = document.getElementById('clockBtn');
         const converterBtn = document.getElementById('converterBtn');
