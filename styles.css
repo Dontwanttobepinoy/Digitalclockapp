@@ -792,7 +792,10 @@ body {
 
 /* Mobile-specific font optimizations */
 @media screen and (max-width: 768px) {
-
+    /* Hide fullscreen button on mobile devices */
+    #fullscreenBtn {
+        display: none !important;
+    }
     
     /* Responsive Design */
     
