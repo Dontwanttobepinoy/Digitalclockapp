@@ -69,13 +69,7 @@ class DigitalClockApp {
     }
     
     init() {
-        // Hide fullscreen button on mobile devices
-        this.hideFullscreenButtonOnMobile();
-        
-        // Handle window resize for fullscreen button visibility
-        window.addEventListener('resize', () => {
-            this.hideFullscreenButtonOnMobile();
-        });
+
         
         try {
         this.loadSettings();
@@ -126,34 +120,9 @@ class DigitalClockApp {
         }
     }
     
-    setupNavigationTouchHandling() {
-        // Approach 1: CSS-only solution - no JavaScript needed
-        // The CSS handles all touch improvements
-        console.log('Navigation touch handling: CSS-only approach active');
-    }
+
     
-    hideFullscreenButtonOnMobile() {
-        // Check if mobile device
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const isMobileWidth = window.innerWidth <= 768;
-        
-        if (isMobile || isMobileWidth) {
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
-            if (fullscreenBtn) {
-                fullscreenBtn.style.display = 'none';
-                fullscreenBtn.style.visibility = 'hidden';
-                fullscreenBtn.style.opacity = '0';
-                fullscreenBtn.style.pointerEvents = 'none';
-                fullscreenBtn.style.width = '0';
-                fullscreenBtn.style.height = '0';
-                fullscreenBtn.style.margin = '0';
-                fullscreenBtn.style.padding = '0';
-                fullscreenBtn.style.border = 'none';
-                fullscreenBtn.style.position = 'absolute';
-                fullscreenBtn.style.left = '-9999px';
-            }
-        }
-    }
+
     
     initBanner() {
         const banner = document.getElementById('banner');
@@ -270,9 +239,6 @@ class DigitalClockApp {
     }
     
     setupEventListeners() {
-        // Add touch scroll handling for navigation
-        this.setupNavigationTouchHandling();
-        
         // Navigation buttons - with null checks
         const clockBtn = document.getElementById('clockBtn');
         const converterBtn = document.getElementById('converterBtn');
@@ -280,41 +246,49 @@ class DigitalClockApp {
         const stopwatchBtn = document.getElementById('stopwatchBtn');
         const blogBtn = document.getElementById('blogBtn');
         
-        if (clockBtn) {
-            clockBtn.addEventListener('click', () => this.switchMode('clock'));
-            clockBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.switchMode('clock');
+        // Generic smart touch handling for any button
+        const setupSmartTouch = (btn, callback) => {
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let hasMoved = false;
+            
+            // Track touch start
+            btn.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                hasMoved = false;
+            }, { passive: true });
+            
+            // Track touch move to detect scrolling
+            btn.addEventListener('touchmove', (e) => {
+                const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+                const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+                
+                // If significant movement, mark as moved
+                if (deltaX > 5 || deltaY > 5) {
+                    hasMoved = true;
+                }
+            }, { passive: true });
+            
+            // Handle touch end - only trigger if minimal movement
+            btn.addEventListener('touchend', (e) => {
+                if (!hasMoved) {
+                    // Only prevent default and trigger if it's a clear tap
+                    e.preventDefault();
+                    callback();
+                }
+                // If hasMoved is true, let the browser handle scrolling naturally
             });
-        }
-        if (converterBtn) {
-            converterBtn.addEventListener('click', () => this.switchMode('converter'));
-            converterBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.switchMode('converter');
-            });
-        }
-        if (timerBtn) {
-            timerBtn.addEventListener('click', () => this.switchMode('timer'));
-            timerBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.switchMode('timer');
-            });
-        }
-        if (stopwatchBtn) {
-            stopwatchBtn.addEventListener('click', () => this.switchMode('stopwatch'));
-            stopwatchBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.switchMode('stopwatch');
-            });
-        }
-        if (blogBtn) {
-            blogBtn.addEventListener('click', () => this.switchMode('blog'));
-            blogBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.switchMode('blog');
-            });
-        }
+            
+            // Keep click event for desktop
+            btn.addEventListener('click', callback);
+        };
+        
+        if (clockBtn) setupSmartTouch(clockBtn, () => this.switchMode('clock'));
+        if (converterBtn) setupSmartTouch(converterBtn, () => this.switchMode('converter'));
+        if (timerBtn) setupSmartTouch(timerBtn, () => this.switchMode('timer'));
+        if (stopwatchBtn) setupSmartTouch(stopwatchBtn, () => this.switchMode('stopwatch'));
+        if (blogBtn) setupSmartTouch(blogBtn, () => this.switchMode('blog'));
         
         // Toggle buttons - with null checks
         const formatToggle = document.getElementById('formatToggle');
@@ -323,32 +297,16 @@ class DigitalClockApp {
         const shareBtn = document.getElementById('shareBtn');
         
         if (formatToggle) {
-            formatToggle.addEventListener('click', () => this.toggleTimeFormat());
-            formatToggle.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.toggleTimeFormat();
-            });
+            setupSmartTouch(formatToggle, () => this.toggleTimeFormat());
         }
         if (muteToggle) {
-            muteToggle.addEventListener('click', () => this.toggleMute());
-            muteToggle.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.toggleMute();
-            });
+            setupSmartTouch(muteToggle, () => this.toggleMute());
         }
         if (fullscreenBtn) {
-            fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
-            fullscreenBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.toggleFullscreen();
-            });
+            setupSmartTouch(fullscreenBtn, () => this.toggleFullscreen());
         }
         if (shareBtn) {
-            shareBtn.addEventListener('click', () => this.shareApp());
-            shareBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.shareApp();
-            });
+            setupSmartTouch(shareBtn, () => this.shareApp());
         }
         
         // Clock mode buttons
@@ -356,19 +314,11 @@ class DigitalClockApp {
         const dualClockBtn = document.getElementById('dualClockBtn');
         
         if (localBtn) {
-            localBtn.addEventListener('click', () => this.openTimezoneModal('main'));
-            localBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.openTimezoneModal('main');
-            });
+            setupSmartTouch(localBtn, () => this.openTimezoneModal('main'));
         }
         
         if (dualClockBtn) {
-            dualClockBtn.addEventListener('click', () => this.enterDualClockMode());
-            dualClockBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.enterDualClockMode();
-            });
+            setupSmartTouch(dualClockBtn, () => this.enterDualClockMode());
         }
         
         // Dual clock mode buttons
@@ -418,28 +368,16 @@ class DigitalClockApp {
         const timerResetBtn = document.getElementById('timerResetBtn');
         
         if (timerStartBtn) {
-            timerStartBtn.addEventListener('click', () => this.toggleTimer());
-            timerStartBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.toggleTimer();
-            });
+            setupSmartTouch(timerStartBtn, () => this.toggleTimer());
         }
         
         if (timerResetBtn) {
-            timerResetBtn.addEventListener('click', () => this.resetTimer());
-            timerResetBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.resetTimer();
-            });
+            setupSmartTouch(timerResetBtn, () => this.resetTimer());
         }
         
         // Preset buttons
         document.querySelectorAll('.preset-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.setPresetTime(parseInt(e.target.dataset.time)));
-            btn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.setPresetTime(parseInt(e.target.dataset.time));
-            });
+            setupSmartTouch(btn, (e) => this.setPresetTime(parseInt(btn.dataset.time)));
         });
         
         // Timer input fields
@@ -460,27 +398,15 @@ class DigitalClockApp {
         const stopwatchResetBtn = document.getElementById('stopwatchResetBtn');
         
         if (stopwatchStartBtn) {
-            stopwatchStartBtn.addEventListener('click', () => this.toggleStopwatch());
-            stopwatchStartBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.toggleStopwatch();
-            });
+            setupSmartTouch(stopwatchStartBtn, () => this.toggleStopwatch());
         }
         
         if (stopwatchLapBtn) {
-            stopwatchLapBtn.addEventListener('click', () => this.recordLap());
-            stopwatchLapBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.recordLap();
-            });
+            setupSmartTouch(stopwatchLapBtn, () => this.recordLap());
         }
         
         if (stopwatchResetBtn) {
-            stopwatchResetBtn.addEventListener('click', () => this.resetStopwatch());
-            stopwatchResetBtn.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.resetStopwatch();
-            });
+            setupSmartTouch(stopwatchResetBtn, () => this.resetStopwatch());
         }
         
         // Modal controls
@@ -488,11 +414,7 @@ class DigitalClockApp {
         const timezoneModal = document.getElementById('timezoneModal');
         
         if (closeModal) {
-            closeModal.addEventListener('click', () => this.closeTimezoneModal());
-            closeModal.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.closeTimezoneModal();
-            });
+            setupSmartTouch(closeModal, () => this.closeTimezoneModal());
         }
         
         if (timezoneModal) {
